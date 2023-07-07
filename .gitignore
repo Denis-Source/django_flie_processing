@@ -1,0 +1,13 @@
+# Virtual envs
+env
+venv
+
+# Media/Static
+media
+static
+
+# Local databases
+*.sqlite3
+
+# IDE
+.idea
