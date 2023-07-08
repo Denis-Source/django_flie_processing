@@ -50,7 +50,7 @@ class AuthLoginAPIView(GenericAPIView):
 
     @swagger_auto_schema(
         responses={
-            200: "User logged successfully",
+            200: "User token",
             400: "Bad credentials",
             404: "User not found"})
     def post(self, request):
