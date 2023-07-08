@@ -1,4 +1,8 @@
+from asyncio import get_event_loop
 from logging import Handler
+
+from asgiref.sync import sync_to_async
+from django.core.exceptions import SynchronousOnlyOperation
 
 
 class LogRecordHandler(Handler):
@@ -11,4 +15,9 @@ class LogRecordHandler(Handler):
             message=record.message
         )
 
-        log_record.save()
+        try:
+            log_record.save()
+        except SynchronousOnlyOperation:
+            loop = get_event_loop()
+            loop.create_task(sync_to_async(log_record.save)())
+

@@ -5,6 +5,7 @@ venv
 # Media/Static
 media
 static
+static_root
 
 # Local databases
 *.sqlite3
