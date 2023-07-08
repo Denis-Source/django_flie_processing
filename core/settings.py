@@ -1,14 +1,11 @@
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-o$@x3xk^on2&zq+*g0^$0zih+m2ljnro!3j3k2)$o@4iis+xbd"
-
 DEBUG = True
-
 ALLOWED_HOSTS = []
-
 AUTH_USER_MODEL = "user.User"
 
+# Apps
 INSTALLED_APPS = [
     "jazzmin",
     "django.contrib.admin",
@@ -18,11 +15,13 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "rest_framework.authtoken",
 
     "user",
     "log_record"
 ]
 
+# Middleware
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -33,8 +32,19 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "core.urls"
+# REST configuration
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.BasicAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.TokenAuthentication"
+    ]
+}
 
+ROOT_URLCONF = "core.urls"
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Templates
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -51,12 +61,9 @@ TEMPLATES = [
         },
     },
 ]
-
 WSGI_APPLICATION = "core.wsgi.application"
 
 # Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -65,8 +72,6 @@ DATABASES = {
 }
 
 # Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -82,18 +87,20 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Internationalization
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
+# Static and media folders
 STATIC_URL = "static_root/"
 STATIC_ROOT = BASE_DIR.joinpath(STATIC_URL)
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR.joinpath(MEDIA_URL)
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Logging
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -125,3 +132,6 @@ LOGGING = {
         }
     },
 }
+
+# Misc
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

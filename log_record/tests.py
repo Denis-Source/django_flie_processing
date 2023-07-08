@@ -54,5 +54,3 @@ class LogRecordTestCase(TestCase):
                 expected += c_level >= level
 
         self.assertEqual(LogRecord.objects.filter(message=self.test_message).count(), expected)
-
-
