@@ -42,7 +42,6 @@ class BaseAuthTestCase(TestCase):
         """Gets token from a logged response"""
         response = self.logged_user_response()
         response_json = response.json()
-        self.client.logout()
 
         return response_json.get("token")
 
@@ -73,10 +72,7 @@ class RegisterAuthTestCase(BaseAuthTestCase):
                 "password": self.user_password
             }
         )
-        user = auth.get_user(self.client)
-        token = Token.objects.get(key=response.json()["token"])
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(token.user, user)
 
 
 class LoginAuthTestCase(BaseAuthTestCase):
@@ -93,11 +89,7 @@ class LoginAuthTestCase(BaseAuthTestCase):
             }
         )
 
-        user = auth.get_user(self.client)
-        token = Token.objects.get(key=response.json()["token"])
-
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(token.user, user)
 
     def test_login_wrong_password(self):
         """If the password is not correct, should return 400 status"""

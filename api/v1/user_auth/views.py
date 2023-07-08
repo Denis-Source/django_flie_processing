@@ -1,3 +1,4 @@
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
@@ -30,6 +31,10 @@ class AuthRegisterAPIView(CreateAPIView):
     def perform_create(self, serializer):
         self.obj = serializer.save()
 
+    @swagger_auto_schema(
+        responses={
+            201: "User created successfully",
+            400: "Bad data"})
     def post(self, request, *args, **kwargs):
         """Registers (creates) a new user from the provided fields,
         generates and provides a new authentication token"""
@@ -43,7 +48,14 @@ class AuthLoginAPIView(GenericAPIView):
     permission_classes = [AllowAny]
     serializer_class = UserLoginSerializer
 
+    @swagger_auto_schema(
+        responses={
+            200: "User logged successfully",
+            400: "Bad credentials",
+            404: "User not found"})
     def post(self, request):
+        """Provides a user with an authentication token
+        if credentials are correct"""
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -56,13 +68,3 @@ class AuthLoginAPIView(GenericAPIView):
             return Response({"token": token.key}, status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-
-
-class AuthLogoutAPIView(GenericAPIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self):
-        return Response(status=status.HTTP_200_OK)
-
-    def get_serializer(self):
-        return None
