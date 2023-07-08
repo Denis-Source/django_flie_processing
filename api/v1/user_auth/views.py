@@ -1,5 +1,6 @@
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login
 from rest_framework import status
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.generics import RetrieveAPIView, CreateAPIView, GenericAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -12,6 +13,7 @@ from user.models import User
 class AuthDetailAPIView(RetrieveAPIView):
     serializer_class = UserDetailSerializer
     permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
     queryset = User.objects.all()
 
     def get_object(self):
@@ -31,8 +33,10 @@ class AuthRegisterAPIView(CreateAPIView):
 
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
+        token, _ = Token.objects.get_or_create(user=self.obj)
         login(request, self.obj)
-        return response
+
+        return Response({"token": token.key}, status.HTTP_201_CREATED)
 
 
 class AuthLoginAPIView(GenericAPIView):
