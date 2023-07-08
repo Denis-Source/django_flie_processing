@@ -1,4 +1,3 @@
-from django.contrib.auth import login
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
@@ -34,7 +33,6 @@ class AuthRegisterAPIView(CreateAPIView):
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
         token, _ = Token.objects.get_or_create(user=self.obj)
-        login(request, self.obj)
 
         return Response({"token": token.key}, status.HTTP_201_CREATED)
 
@@ -53,7 +51,6 @@ class AuthLoginAPIView(GenericAPIView):
 
         token, _ = Token.objects.get_or_create(user=user)
         if user.check_password(serializer.validated_data["password"]):
-            login(request, user)
             return Response({"token": token.key}, status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
