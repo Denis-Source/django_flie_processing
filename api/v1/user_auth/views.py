@@ -5,7 +5,7 @@ from rest_framework.generics import RetrieveAPIView, CreateAPIView, GenericAPIVi
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from api.v1.auth.serializers import UserDetailSerializer, UserCreateSerializer, UserLoginSerializer
+from api.v1.user_auth.serializers import UserDetailSerializer, UserCreateSerializer, UserLoginSerializer
 from user.models import User
 
 
