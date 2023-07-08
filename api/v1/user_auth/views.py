@@ -31,6 +31,8 @@ class AuthRegisterAPIView(CreateAPIView):
         self.obj = serializer.save()
 
     def post(self, request, *args, **kwargs):
+        """Registers (creates) a new user from the provided fields,
+        generates and provides a new authentication token"""
         response = super().post(request, *args, **kwargs)
         token, _ = Token.objects.get_or_create(user=self.obj)
 
@@ -61,3 +63,6 @@ class AuthLogoutAPIView(GenericAPIView):
 
     def post(self):
         return Response(status=status.HTTP_200_OK)
+
+    def get_serializer(self):
+        return None

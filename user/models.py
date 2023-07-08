@@ -8,12 +8,12 @@ class User(AbstractUser):
         STAFF = "staff", "Staff"
         ADMIN = "admin", "Admin"
 
-    email = models.EmailField(unique=True, verbose_name="Email")
-    username = models.CharField(max_length=64, unique=True, verbose_name="Username")
-    role = models.CharField(max_length=8, choices=Roles.choices, verbose_name="User role", default=Roles.USER)
+    email = models.EmailField(unique=True, verbose_name="Email", help_text="Email of the user")
+    username = models.CharField(max_length=64, unique=True, verbose_name="Username", help_text="The main distinguishing field")
+    role = models.CharField(max_length=8, choices=Roles.choices, verbose_name="User role", default=Roles.USER, help_text="User assigned role, regular 'user' is by default")
 
-    registered = models.DateTimeField(auto_now_add=True, verbose_name="Registered date")
-    image = models.ImageField(verbose_name="Profile image", upload_to="user_images", null=True, blank=True)
+    registered = models.DateTimeField(auto_now_add=True, verbose_name="Registered date", help_text="Automatically generated date and time of user registration")
+    image = models.ImageField(verbose_name="Profile image", upload_to="user_images", null=True, blank=True, help_text="User profile picture")
 
     def __str__(self):
         return f"{self.role} {self.username}"
