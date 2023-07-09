@@ -18,3 +18,4 @@ application = ProtocolTypeRouter({
         re_path("", get_asgi_application()),
     ]),
 })
+
