@@ -132,14 +132,15 @@ LOGGING = {
         "django": {
             "handlers": ["console", "log_record_handler"],
             "level": "INFO",
+            "propagate": False
         },
         "daphne.http_protocol": {
             "handlers": ["console", "log_record_handler"],
-            "level": "INFO"
+            "level": "INFO",
         },
         "asyncio": {
             "handlers": ["console"],
-            "level": "ERROR"
+            "level": "ERROR",
         }
     },
 
