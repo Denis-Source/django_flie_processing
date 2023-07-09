@@ -17,9 +17,13 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "drf_yasg",
+    "channels",
+    "django_eventstream",
 
     "user",
     "log_record",
+    "api.v1.user_auth",
+    "api.v1.log_stream"
 ]
 
 # Middleware
@@ -60,6 +64,7 @@ TEMPLATES = [
     },
 ]
 WSGI_APPLICATION = "core.wsgi.application"
+ASGI_APPLICATION = "core.asgi.application"
 
 # Database
 DATABASES = {
@@ -126,9 +131,18 @@ LOGGING = {
     "loggers": {
         "django": {
             "handlers": ["console", "log_record_handler"],
-            "level": "ERROR",
+            "level": "INFO",
+        },
+        "daphne.http_protocol": {
+            "handlers": ["console", "log_record_handler"],
+            "level": "INFO"
+        },
+        "asyncio": {
+            "handlers": ["console"],
+            "level": "ERROR"
         }
     },
+
 }
 
 # Misc

@@ -5,9 +5,13 @@ venv
 # Media/Static
 media
 static
+static_root
 
 # Local databases
 *.sqlite3
+# pyc caches
+.pyc
+__pycache__
 
 # IDE
 .idea
