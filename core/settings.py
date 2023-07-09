@@ -22,6 +22,8 @@ INSTALLED_APPS = [
 
     "user",
     "log_record",
+    "api.v1.user_auth",
+    "api.v1.log_stream"
 ]
 
 # Middleware
@@ -129,11 +131,11 @@ LOGGING = {
     "loggers": {
         "django": {
             "handlers": ["console", "log_record_handler"],
-            "level": "ERROR",
+            "level": "INFO",
         },
         "daphne.http_protocol": {
-            "handlers": ["console"],
-            "level": "ERROR"
+            "handlers": ["console", "log_record_handler"],
+            "level": "INFO"
         },
         "asyncio": {
             "handlers": ["console"],
