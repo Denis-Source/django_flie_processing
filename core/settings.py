@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from celery.schedules import crontab
+
 SECRET_KEY = "django-insecure-o$@x3xk^on2&zq+*g0^$0zih+m2ljnro!3j3k2)$o@4iis+xbd"
 DEBUG = True
 ALLOWED_HOSTS = []
@@ -18,12 +20,12 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "drf_yasg",
     "channels",
-    "django_eventstream",
+    "django_celery_beat",
 
     "user",
-    "log_record",
+    "task",
     "api.v1.user_auth",
-    "api.v1.log_stream"
+    "api.v1.task"
 ]
 
 # Middleware
@@ -103,49 +105,6 @@ STATIC_ROOT = BASE_DIR.joinpath(STATIC_URL)
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR.joinpath(MEDIA_URL)
 
-# Logging
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "verbose": {
-            "format": "{asctime} {levelname} {module} {message}",
-            "style": "{",
-        }
-    },
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-            "formatter": "verbose"
-        },
-        "log_record_handler": {
-            "class": "log_record.handlers.LogRecordHandler",
-            "formatter": "verbose",
-        }
-    },
-    "root": {
-        "handlers": ["console", "log_record_handler"],
-        "level": "DEBUG",
-
-    },
-    "loggers": {
-        "django": {
-            "handlers": ["console", "log_record_handler"],
-            "level": "INFO",
-            "propagate": False
-        },
-        "daphne.http_protocol": {
-            "handlers": ["console", "log_record_handler"],
-            "level": "INFO",
-        },
-        "asyncio": {
-            "handlers": ["console"],
-            "level": "ERROR",
-        }
-    },
-
-}
-
 # Misc
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -157,5 +116,27 @@ SWAGGER_SETTINGS = {
             "in": "header",
             "name": "Authorization"
         }
+    },
+}
+
+# Celery settings
+CELERY_BROKER_URL = "redis://localhost:6379"
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers.DatabaseScheduler"
+
+CELERY_BEAT_SCHEDULE = {
+    "cancel_stale_tasks": {
+        "task": "task.periodical.cancel_stale_tasks",
+        "schedule": crontab(minute="*/1"),
+    },
+}
+STALE_TASK_AGE = 3 * 60  # in seconds
+
+# Channels
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
     },
 }
