@@ -1,3 +1,95 @@
-from django.test import TestCase
+import math
+from datetime import timedelta
 
-# Create your tests here.
+from django.test import TestCase
+from django.utils import timezone
+
+from core import settings
+from task.models import Task
+from user.models import User
+
+
+class TaskTestCase(TestCase):
+    def setUp(self):
+        self.closing_statuses = [
+            Task.Statuses.ERRORED,
+            Task.Statuses.FINISHED,
+            Task.Statuses.CANCELED
+        ]
+
+        self.not_closing_statuses = [
+            Task.Statuses.CREATED,
+            Task.Statuses.RUNNING
+        ]
+
+        self.user = User(
+            email="test@mail.com",
+            username="cool_test",
+        )
+        self.user.save()
+
+    def test_update_status_closing(self):
+        for status in self.closing_statuses:
+            task = Task(name="test_task", initiator=self.user)
+            task.save()
+
+            self.assertEqual(task.status, Task.Statuses.CREATED)
+            task.update_status(status)
+            self.assertEqual(task.status, status)
+            self.assertTrue(task.closed_at)
+
+    def test_update_status_not_closing(self):
+        for status in self.not_closing_statuses:
+            task = Task(name="test_task", initiator=self.user)
+            task.save()
+
+            self.assertEqual(task.status, Task.Statuses.CREATED)
+            task.update_status(status)
+            self.assertEqual(task.status, status)
+            self.assertFalse(task.closed_at)
+
+    def test_update_status_wrong_value(self):
+        task = Task(name="test_task", initiator=self.user)
+        task.save()
+        invalid_status = "invalid status"
+        self.assertRaises(ValueError, task.update_status, invalid_status)
+
+    def test_get_stale_tasks(self):
+        n = 100
+
+        for i in range(n):
+            task = Task(name="test_task", initiator=self.user)
+            if i % 2 == 0:
+                task.update_status(Task.Statuses.RUNNING)
+            else:
+                task.update_status(Task.Statuses.FINISHED)
+
+            if i % 3 == 0:
+                task.created_at = timezone.now() - timedelta(seconds=(settings.STALE_TASK_AGE + 10))
+            task.save()
+
+        query = Task.get_stale_tasks()
+        expected = math.ceil(n / 2 / 3)
+        self.assertEqual(len(query), expected)
+
+    def test_get_opened_tasks(self):
+        n = 100
+
+        n_map = {
+            0: Task.Statuses.CREATED,
+            1: Task.Statuses.RUNNING,
+            2: Task.Statuses.ERRORED,
+            3: Task.Statuses.FINISHED,
+            4: Task.Statuses.CREATED,
+        }
+
+        for i in range(n):
+            task = Task(name="test_task", initiator=self.user)
+            task.save()
+            status = n_map[i % len(n_map)]
+            task.update_status(status)
+
+        query = Task.get_opened_tasks()
+
+        expected = math.ceil(n / 5 * 3)
+        self.assertEqual(len(query), expected)
