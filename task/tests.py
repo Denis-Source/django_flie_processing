@@ -29,6 +29,8 @@ class TaskTestCase(TestCase):
         self.user.save()
 
     def test_update_status_closing(self):
+        """Updating status in a case of a task completion
+        should set closing date"""
         for status in self.closing_statuses:
             task = Task(name="test_task", initiator=self.user)
             task.save()
@@ -39,6 +41,7 @@ class TaskTestCase(TestCase):
             self.assertTrue(task.closed_at)
 
     def test_update_status_not_closing(self):
+        """Updating status in other case should not set closing date"""
         for status in self.not_closing_statuses:
             task = Task(name="test_task", initiator=self.user)
             task.save()
@@ -49,12 +52,15 @@ class TaskTestCase(TestCase):
             self.assertFalse(task.closed_at)
 
     def test_update_status_wrong_value(self):
+        """Updating with an invalid status should raise an exception"""
         task = Task(name="test_task", initiator=self.user)
         task.save()
         invalid_status = "invalid status"
         self.assertRaises(ValueError, task.update_status, invalid_status)
 
     def test_get_stale_tasks(self):
+        """Should return a list of tasks that are not completed
+        and running for too long"""
         n = 100
 
         for i in range(n):
@@ -73,6 +79,7 @@ class TaskTestCase(TestCase):
         self.assertEqual(len(query), expected)
 
     def test_get_opened_tasks(self):
+        """Should return tasks that are not completed"""
         n = 100
 
         n_map = {

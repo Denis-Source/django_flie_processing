@@ -1,6 +1,14 @@
+from enum import Enum
+
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
+from websocket.general import construct
+
+
+class TaskMessageTypes(Enum, str):
+    OPENED = "opened_task"
+    UPDATED = "updated_task"
 
 class TaskConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
@@ -15,10 +23,8 @@ class TaskConsumer(AsyncJsonWebsocketConsumer):
 
         tasks = await database_sync_to_async(self.get_unfinished_tasks)()
         for task_data in tasks:
-            await self.updated_task({
-                "type": "opened_task",
-                "data": task_data
-            })
+            await self.send_json(
+                construct(TaskMessageTypes.OPENED, task_data))
 
     async def opened_task(self, data):
         await self.send_json(data)
