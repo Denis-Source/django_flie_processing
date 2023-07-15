@@ -1,6 +1,7 @@
 # Virtual envs
 env
 venv
+linux_venv
 
 # Media/Static
 media
@@ -9,6 +10,8 @@ static_root
 
 # Local databases
 *.sqlite3
+*.db
+
 # pyc caches
 .pyc
 __pycache__
