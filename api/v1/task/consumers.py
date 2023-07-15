@@ -6,7 +6,7 @@ from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from websocket.general import construct
 
 
-class TaskMessageTypes(Enum, str):
+class TaskMessageTypes(str, Enum):
     OPENED = "opened_task"
     UPDATED = "updated_task"
 
