@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from celery.schedules import crontab
@@ -119,8 +120,10 @@ SWAGGER_SETTINGS = {
     },
 }
 
+REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
+
 # Celery settings
-CELERY_BROKER_URL = "redis://localhost:6379"
+CELERY_BROKER_URL = f"redis://{REDIS_HOST}:6379"
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers.DatabaseScheduler"
 
 CELERY_BEAT_SCHEDULE = {
@@ -136,7 +139,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("localhost", 6379)],
+            "hosts": [(REDIS_HOST, 6379)],
         },
     },
 }
