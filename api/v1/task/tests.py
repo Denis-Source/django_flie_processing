@@ -9,6 +9,7 @@ class StartGenerationCreationTest(BaseAuthTestCase):
     url_name = "v1-maze-generate"
 
     def test_create_task_success(self):
+        """Should create a task if authenticated and provided data is correct"""
         response = self.client.post(
             self.get_url(),
             {
@@ -23,6 +24,7 @@ class StartGenerationCreationTest(BaseAuthTestCase):
         self.assertEqual(MazeGenerationTask.objects.count(), 1)
 
     def test_create_task_invalid_data(self):
+        """Should return bad request if invalid value is provided"""
         response = self.client.post(
             self.get_url(),
             {
@@ -37,6 +39,7 @@ class StartGenerationCreationTest(BaseAuthTestCase):
         self.assertEqual(MazeGenerationTask.objects.count(), 0)
 
     def test_create_task_unauthorized(self):
+        """Should return unauthorized if token is not provided"""
         response = self.client.post(
             self.get_url(),
             {
@@ -53,6 +56,7 @@ class AlgorithmChoicesTestCase(BaseAuthTestCase):
     url_name = "v1-maze-algorithms"
 
     def test_get_choices_success(self):
+        """Should return a list containing all algorithms"""
         response = self.client.get(self.get_url())
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(isinstance(response.data, list))
