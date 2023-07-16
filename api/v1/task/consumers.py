@@ -10,6 +10,7 @@ class TaskMessageTypes(str, Enum):
     OPENED = "opened_task"
     UPDATED = "updated_task"
 
+
 class TaskConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
         from rest_framework.authtoken.admin import User

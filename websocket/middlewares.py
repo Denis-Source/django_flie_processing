@@ -1,3 +1,5 @@
+from urllib.parse import parse_qs
+
 from channels.db import database_sync_to_async
 from channels.middleware import BaseMiddleware
 from django.db import close_old_connections
@@ -17,17 +19,9 @@ class TokenAuthMiddleware(BaseMiddleware):
 
     async def __call__(self, scope, receive, send):
         await database_sync_to_async(close_old_connections)()
-        headers = scope.get("headers")
-
-        token_header = self.get_auth_header(headers)
-        if token_header:
-            user = await self.get_user(token_header.split(" ")[1])
+        params = parse_qs(scope.get('query_string').decode())
+        params = params.get("token")
+        if params:
+            user = await self.get_user(params[0])
             scope["user"] = user
         return await self.app(scope, receive, send)
-
-    def get_auth_header(self, headers):
-        for header in headers:
-            if header[0].decode().lower() == "authorization":
-                return header[1].decode().lower()
-
-        return None
