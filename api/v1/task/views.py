@@ -1,4 +1,5 @@
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -36,7 +37,7 @@ class StartGenerationCreationView(GenericAPIView):
         task.save()
 
         generate_maze_task.apply_async(args=[task.id], soft_time_limit=settings.STALE_TASK_AGE)
-        return Response()
+        return Response(status=status.HTTP_201_CREATED)
 
 
 class AlgorithmChoicesView(APIView):
