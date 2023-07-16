@@ -1,15 +1,13 @@
-import base64
 from logging import getLogger
 
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
-from django.core.files.base import ContentFile
 
 from api.v1.task.consumers import TaskMessageTypes
 from api.v1.task.serializers import TaskSerializer
 from core.celery import app
 from task.maze.maze import Maze
-from task.maze.utils import convert_to_64
+from task.maze.utils import convert_to_64, image_to_file
 from task.models import MazeGenerationTask
 from websocket.general import construct
 
@@ -27,7 +25,7 @@ def generate_maze_task(task_id):
     image = None
 
     data = TaskSerializer(task).data
-    for image in maze.produce_maze_visualization(task.algorithm, 20):
+    for image in maze.generate_maze(task.algorithm, 20):
         data["extra"] = {
             "image": (convert_to_64(image))
         }
@@ -37,4 +35,4 @@ def generate_maze_task(task_id):
 
     task.update_status(MazeGenerationTask.Statuses.FINISHED)
     if image:
-        task.set_result(image)
+        task.set_result(image_to_file(image))

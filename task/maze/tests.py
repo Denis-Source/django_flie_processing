@@ -93,7 +93,7 @@ class MazeTestCase(TestCase):
         self.assertTrue(isinstance(image, Image.Image))
 
     def test_from_64(self):
-        """Should convert a base64 string into Djnago suitable file format"""
+        """Should convert a base64 string into a Django suitable file format"""
         maze = [maze for maze in
                 Maze(**self.maze_params).
                 generate_maze(WILSON, self.step)][0]
