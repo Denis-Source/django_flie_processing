@@ -120,7 +120,7 @@ SWAGGER_SETTINGS = {
 }
 
 # Celery settings
-CELERY_BROKER_URL = "redis://redis:6379"
+CELERY_BROKER_URL = "redis://localhost:6379"
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers.DatabaseScheduler"
 
 CELERY_BEAT_SCHEDULE = {
@@ -136,7 +136,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("redis", 6379)],
+            "hosts": [("localhost", 6379)],
         },
     },
 }
