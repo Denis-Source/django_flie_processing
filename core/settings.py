@@ -129,10 +129,10 @@ CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers.DatabaseScheduler"
 CELERY_BEAT_SCHEDULE = {
     "cancel_stale_tasks": {
         "task": "task.periodical.cancel_stale_tasks",
-        "schedule": crontab(minute="*/1"),
+        "schedule": crontab(minute="*/10    "),
     },
 }
-STALE_TASK_AGE = 3 * 60  # in seconds
+STALE_TASK_AGE = 10 * 60  # in seconds
 
 # Channels
 CHANNEL_LAYERS = {

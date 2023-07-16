@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 
 from core import settings
+from task.maze.maze import BINARY_TREE, SIDEWINDER, ALDOUS_BRODER, WILSON, HUNT_AND_KILL, RECURSIVE_BACKTRACKER
 from user.models import User
 
 
@@ -20,7 +21,7 @@ class Task(models.Model):
                                       help_text="Date that the task was create")
     closed_at = models.DateTimeField(null=True, blank=True, verbose_name="Closure date",
                                      help_text="Date that the task was finished/errored")
-    initiator = models.ForeignKey(User, on_delete=models.CASCADE, editable=False, verbose_name="Task initiator",
+    initiator = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Task initiator",
                                   help_text="User that initiated the task")
 
     def __str__(self):
@@ -48,3 +49,22 @@ class Task(models.Model):
     @classmethod
     def get_opened_tasks(cls):
         return cls.objects.filter(status__in=[cls.Statuses.CREATED, cls.Statuses.RUNNING])
+
+
+class MazeGenerationTask(Task):
+    class ALGORITHMS(models.TextChoices):
+        BINARY_TREE = BINARY_TREE
+        SIDEWINDER = SIDEWINDER
+        ALDOUS_BRODER = ALDOUS_BRODER
+        WILSON = WILSON
+        HUNT_AND_KILL = HUNT_AND_KILL
+        RECURSIVE_BACKTRACKER = RECURSIVE_BACKTRACKER
+
+    width = models.IntegerField()
+    height = models.IntegerField()
+    algorithm = models.CharField(max_length=32, default=ALGORITHMS.BINARY_TREE, choices=ALGORITHMS.choices)
+    result = models.ImageField(upload_to="mazes", blank=True, null=True)
+
+    def set_result(self, result):
+        self.result = result
+        self.save()
