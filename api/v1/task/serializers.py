@@ -13,3 +13,10 @@ class TaskSerializer(ModelSerializer):
             "created_at",
             "closed_at"
         ]
+
+class TaskCreateSerializer(ModelSerializer):
+    class Meta:
+        model = Task
+        fields = [
+            "name"
+        ]
