@@ -78,9 +78,8 @@ class TaskTestCase(TestCase):
         expected = math.ceil(n / 2 / 3)
         self.assertEqual(len(query), expected)
 
-    def test_get_opened_tasks(self):
-        """Should return tasks that are not completed"""
-        n = 100
+    def generate_task_sample(self, n=100):
+        self.assertTrue(n % len(Task.Statuses.choices) == 0)
 
         n_map = {
             0: Task.Statuses.CREATED,
@@ -96,7 +95,21 @@ class TaskTestCase(TestCase):
             status = n_map[i % len(n_map)]
             task.update_status(status)
 
+    def test_get_opened_tasks(self):
+        """Should return tasks that are not completed"""
+        n = 100
+        self.generate_task_sample(n)
+
         query = Task.get_opened_tasks()
 
         expected = math.ceil(n / 5 * 3)
+        self.assertEqual(len(query), expected)
+
+    def test_get_closed_tasks(self):
+        """Should return tasks that are completed"""
+        n = 100
+        self.generate_task_sample(n)
+
+        query = Task.get_closed_tasks()
+        expected = math.ceil(n / 5 * 2)
         self.assertEqual(len(query), expected)
