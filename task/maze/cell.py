@@ -21,7 +21,7 @@ class Cell:
         self.column = column_index
         self.rows = rows
         self.columns = columns
-        self.linked_cells = []
+        self.linked_cells = set()
 
     def get_neighbors(self, grid):
         """Return North, South, East, West neighboring cells"""
@@ -64,8 +64,8 @@ class Cell:
             raise CellValueError(f"{self} and {other} are not neighbors and cannot be connected.")
         if not isinstance(other, Cell):
             raise CellValueError(f"Cannot link Cell to {type(other)}.")
-        self.linked_cells.append(other)
-        other.linked_cells.append(self)
+        self.linked_cells.add(other)
+        other.linked_cells.add(self)
 
     def unlink(self, other):
         """Unlink 2 connected cells."""

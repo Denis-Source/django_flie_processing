@@ -85,7 +85,7 @@ class Maze:
     def _binary_tree_configuration(self):
         """Return a maze using binary tree"""
         maze_cells = self._create_maze_cells()
-        modified_cells = []
+        modified_cells = set()
         for row in range(self.rows):
             for column in range(self.columns):
                 current_cell = maze_cells[row][column]
@@ -95,16 +95,16 @@ class Maze:
                     continue
                 if to_link == "n" and north:
                     current_cell.link(north, maze_cells)
-                    modified_cells.append((current_cell, north))
+                    modified_cells.add((current_cell, north))
                 if to_link == "w" and west:
                     current_cell.link(west, maze_cells)
-                    modified_cells.append((current_cell, west))
+                    modified_cells.add((current_cell, west))
                 if to_link == "n" and not north:
                     current_cell.link(west, maze_cells)
-                    modified_cells.append((current_cell, west))
+                    modified_cells.add((current_cell, west))
                 if to_link == "w" and not west:
                     current_cell.link(north, maze_cells)
-                    modified_cells.append((current_cell, north))
+                    modified_cells.add((current_cell, north))
         dead_ends = self._get_dead_ends(maze_cells)
         return modified_cells, dead_ends
 
