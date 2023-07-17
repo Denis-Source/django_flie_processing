@@ -7,6 +7,9 @@ from user.models import User
 
 
 class Task(models.Model):
+    class Meta:
+        ordering = ["created_at"]
+
     class Statuses(models.TextChoices):
         CREATED = "created"
         RUNNING = "running"
@@ -50,7 +53,6 @@ class Task(models.Model):
     def get_opened_tasks(cls):
         return cls.objects.filter(status__in=[cls.Statuses.CREATED, cls.Statuses.RUNNING])
 
-    # Todo test
     @classmethod
     def get_closed_tasks(cls):
         return cls.objects.filter(status__in=[cls.Statuses.ERRORED, cls.Statuses.FINISHED, cls.Statuses.CANCELED])

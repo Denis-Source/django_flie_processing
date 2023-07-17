@@ -4,7 +4,7 @@ from django.urls import reverse
 from user.models import User
 
 
-class BaseAuthTestCase(TestCase):
+class BaseAPITestCase(TestCase):
     client = Client()
     url_name = None
 

@@ -4,13 +4,13 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 
-from api.tests import BaseAuthTestCase
+from api.tests import BaseAPITestCase
 from api.v1.user_auth.serializers import UserDetailSerializer
 from user.models import User
 
 
 
-class RegisterAuthTestCase(BaseAuthTestCase):
+class RegisterAPITestCase(BaseAPITestCase):
     url_name = "v1-register"
 
     def test_registration_already_exists(self):
@@ -39,7 +39,7 @@ class RegisterAuthTestCase(BaseAuthTestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
-class LoginAuthTestCase(BaseAuthTestCase):
+class LoginAPITestCase(BaseAPITestCase):
     url_name = "v1-login"
 
     def test_login_success(self):
@@ -82,7 +82,7 @@ class LoginAuthTestCase(BaseAuthTestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
-class ProfileDetailAuthTestCase(BaseAuthTestCase):
+class ProfileDetailAPITestCase(BaseAPITestCase):
     url_name = "v1-profile"
 
     def test_not_authenticated(self):
