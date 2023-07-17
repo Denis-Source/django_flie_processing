@@ -1,9 +1,11 @@
-from rest_framework.serializers import ModelSerializer, CharField, EmailField, Serializer
+from rest_framework.serializers import ModelSerializer, CharField, Serializer, SerializerMethodField
 
 from user.models import User
 
 
 class UserDetailSerializer(ModelSerializer):
+    max_tasks = SerializerMethodField("get_max_tasks", label="Maximum of opened task user can have at one moment")
+
     class Meta:
         model = User
         fields = [
@@ -13,8 +15,12 @@ class UserDetailSerializer(ModelSerializer):
             "role",
             "registered",
             "image",
-            "is_superuser"
+            "is_superuser",
+            "max_tasks"
         ]
+
+    def get_max_tasks(self, obj):
+        return User.MAX_TASKS
 
 
 class UserCreateSerializer(ModelSerializer):

@@ -50,6 +50,11 @@ class Task(models.Model):
     def get_opened_tasks(cls):
         return cls.objects.filter(status__in=[cls.Statuses.CREATED, cls.Statuses.RUNNING])
 
+    # Todo test
+    @classmethod
+    def get_closed_tasks(cls):
+        return cls.objects.filter(status__in=[cls.Statuses.ERRORED, cls.Statuses.FINISHED, cls.Statuses.CANCELED])
+
 
 class MazeGenerationTask(Task):
     class ALGORITHMS(models.TextChoices):

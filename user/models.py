@@ -3,6 +3,7 @@ from django.db import models
 
 
 class User(AbstractUser):
+    MAX_TASKS = 3
     class Roles(models.TextChoices):
         USER = "user", "User"
         STAFF = "staff", "Staff"
