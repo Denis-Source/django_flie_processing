@@ -3,6 +3,7 @@ import random
 from PIL import Image, ImageDraw
 
 from .cell import Cell
+from .depiction import Depiction
 
 BINARY_TREE = "binary_tree"
 SIDEWINDER = "sidewinder"
@@ -51,24 +52,6 @@ class Maze:
             HUNT_AND_KILL: self._hunt_and_kill_configuration,
             RECURSIVE_BACKTRACKER: self._recursive_back_tracker_configuration
         }
-
-    def _make_grid_image(self):
-        """Initiate an initial maze grid image"""
-        grid = Image.new("RGB", (self.width, self.height), self.background_color)
-        for x in range(0, self.width, self.cell_width):
-            x0, y0, x1, y1 = x, 0, x, self.height
-            column = (x0, y0), (x1, y1)
-            ImageDraw.Draw(grid).line(column, self.line_color, self.line_width)
-        for y in range(0, self.height, self.cell_height):
-            x0, y0, x1, y1 = 0, y, self.width, y
-            row = (x0, y0), (x1, y1)
-            ImageDraw.Draw(grid).line(row, self.line_color, self.line_width)
-        x_end = (0, self.height - self.drawing_constant), \
-                (self.width - self.drawing_constant, self.height - self.drawing_constant)
-        y_end = (self.width - self.drawing_constant, 0), (self.width - self.drawing_constant, self.height)
-        ImageDraw.Draw(grid).line(x_end, self.line_color, self.line_width)
-        ImageDraw.Draw(grid).line(y_end, self.line_color, self.line_width)
-        return grid
 
     def _create_maze_cells(self):
         """Return maze cells."""
@@ -257,47 +240,11 @@ class Maze:
         if algorithm not in self.algorithms:
             raise MazeValueError(f"Invalid configuration {algorithm}")
 
-        maze_image = self._make_grid_image()
+        depiction = Depiction(
+            self.columns,
+            self.rows
+        )
         cells, dead_ends = self.algorithms[algorithm]()
-        count = 0
-        for cell1, cell2 in cells:
-            cell1_coordinates = cell1.coordinates()
-            cell2_coordinates = cell2.coordinates()
-            if cell1_coordinates[0] == cell2_coordinates[0]:
-                column = min(cell1_coordinates[1], cell2_coordinates[1])
-                x0 = (column + 1) * self.cell_width
-                row = cell1_coordinates[0]
-                y0 = (row * self.cell_height) + (self.line_width - 2)
-                x1 = x0
-                y1 = y0 + self.cell_height - (self.line_width + 1)
-                wall = (x0, y0), (x1, y1)
-                ImageDraw.Draw(maze_image).line(wall, self.background_color, self.line_width)
-                y_end = (self.width - self.drawing_constant, 0), (self.width - self.drawing_constant, self.height)
-                ImageDraw.Draw(maze_image).line(y_end, self.line_color, self.line_width)
-                if count % step == 0:
-                    yield maze_image
-                count += 1
 
-            # Remove horizontal walls
-            if cell1_coordinates[1] == cell2_coordinates[1]:
-                column = cell1_coordinates[1]
-                x0 = column * self.cell_width + self.line_width - 2
-                row = min(cell1_coordinates[0], cell2_coordinates[0])
-                y0 = (row + 1) * self.cell_height
-                x1 = x0 + self.cell_width - (self.line_width + 1)
-                y1 = y0
-                wall = (x0, y0), (x1, y1)
-                ImageDraw.Draw(maze_image).line(wall, self.background_color, self.line_width)
-                x_end = (0, self.height - self.drawing_constant), \
-                        (self.width - self.drawing_constant, self.height - self.drawing_constant)
-                ImageDraw.Draw(maze_image).line(x_end, self.line_color, self.line_width)
-                if count % 20 == 0:
-                    if count % step == 0:
-                        yield maze_image
-                count += 1
-        ImageDraw.Draw(maze_image).ellipse((self.line_width // 2, self.line_width // 2,
-                                            self.cell_width - self.line_width // 2,
-                                            self.cell_width - self.line_width // 2), fill="red")
-        ImageDraw.Draw(maze_image).ellipse((self.width - self.cell_width, self.height - self.cell_height,
-                                            self.width - self.line_width, self.height - self.line_width), fill="green")
-        yield maze_image
+        for grid in depiction.generate_stream(cells, dead_ends, step):
+            yield grid
