@@ -27,16 +27,22 @@ def generate_maze_task(task_id):
 
     data = TaskSerializer(task).data
     try:
-        for image in maze.generate_maze(task.algorithm, 20):
-            data["extra"] = {
-                "image": (convert_to_64(image))
-            }
+        for i, image in enumerate(maze.generate_maze(task.algorithm)):
+            if i % 20 == 0:
+                data["extra"] = {
+                    "image": (convert_to_64(image))
+                }
+                async_to_sync(channel_layer.group_send)(
+                    task.initiator.username,
+                    construct(TaskMessageTypes.UPDATED, data))
+
+
+        task.update_status(MazeGenerationTask.Statuses.FINISHED)
+        if image:
             async_to_sync(channel_layer.group_send)(
                 task.initiator.username,
                 construct(TaskMessageTypes.UPDATED, data))
 
-        task.update_status(MazeGenerationTask.Statuses.FINISHED)
-        if image:
             task.set_result(image_to_file(image))
     except SoftTimeLimitExceeded:
         task.set_result(Task.Statuses.CANCELED)

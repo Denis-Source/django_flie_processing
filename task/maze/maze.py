@@ -45,12 +45,12 @@ class Maze:
         self.drawing_constant = line_width // 2
 
         self.algorithms = {
-            BINARY_TREE: self._binary_tree_configuration,
-            SIDEWINDER: self._side_winder_configuration,
-            ALDOUS_BRODER: self._aldous_broder_configuration,
-            WILSON: self._wilson_configuration,
-            HUNT_AND_KILL: self._hunt_and_kill_configuration,
-            RECURSIVE_BACKTRACKER: self._recursive_back_tracker_configuration
+            BINARY_TREE: self._binary_tree_generation,
+            SIDEWINDER: self._side_winder_generation,
+            ALDOUS_BRODER: self._aldous_broder_generation,
+            WILSON: self._wilson_generation,
+            HUNT_AND_KILL: self._hunt_and_kill_generation,
+            RECURSIVE_BACKTRACKER: self._recursive_back_tracker_generation
         }
 
     def _create_maze_cells(self):
@@ -65,10 +65,9 @@ class Maze:
         return {cell for row in maze for cell in row if len(cell.linked_cells) == 1 and
                 str(cell) != str(maze[-1][-1])}
 
-    def _binary_tree_configuration(self):
-        """Return a maze using binary tree"""
+    def _binary_tree_generation(self):
+        """Generate a maze using binary tree"""
         maze_cells = self._create_maze_cells()
-        modified_cells = set()
         for row in range(self.rows):
             for column in range(self.columns):
                 current_cell = maze_cells[row][column]
@@ -78,24 +77,21 @@ class Maze:
                     continue
                 if to_link == "n" and north:
                     current_cell.link(north, maze_cells)
-                    modified_cells.add((current_cell, north))
+                    yield current_cell, north
                 if to_link == "w" and west:
                     current_cell.link(west, maze_cells)
-                    modified_cells.add((current_cell, west))
+                    yield current_cell, west
                 if to_link == "n" and not north:
                     current_cell.link(west, maze_cells)
-                    modified_cells.add((current_cell, west))
+                    yield current_cell, west
                 if to_link == "w" and not west:
                     current_cell.link(north, maze_cells)
-                    modified_cells.add((current_cell, north))
-        dead_ends = self._get_dead_ends(maze_cells)
-        return modified_cells, dead_ends
+                    yield current_cell, north
 
-    def _side_winder_configuration(self):
-        """Return a maze using sidewinder algorithm"""
+    def _side_winder_generation(self):
+        """Generate a maze using sidewinder algorithm"""
         maze_cells = self._create_maze_cells()
         checked_cells = []
-        modified_cells = []
         for row in range(self.rows):
             for column in range(self.columns):
                 current_cell = maze_cells[row][column]
@@ -103,14 +99,14 @@ class Maze:
                 if row == 0 and east:
                     east_cell = maze_cells[row][column + 1]
                     current_cell.link(east_cell, maze_cells)
-                    modified_cells.append((current_cell, east_cell))
+                    yield current_cell, east_cell
                 if row != 0:
                     checked_cells.append(current_cell)
                     to_link = random.choice("ne")
                     if to_link == "e" and east:
                         east_cell = maze_cells[row][column + 1]
                         current_cell.link(east_cell, maze_cells)
-                        modified_cells.append((current_cell, east_cell))
+                        yield current_cell, east_cell
                     if to_link == "n" or (to_link == "e" and not east):
                         random_cell = random.choice(checked_cells)
                         checked_cells.clear()
@@ -119,11 +115,10 @@ class Maze:
                             random_cell_coordinates[1]]
                         random_cell.link(random_cell_north_neighbor, maze_cells)
                         modified_cells.append((random_cell, random_cell_north_neighbor))
-        dead_ends = self._get_dead_ends(maze_cells)
-        return modified_cells, dead_ends
+                        yield modified_cells
 
-    def _aldous_broder_configuration(self):
-        """Return a maze using Aldous Broder algorithm"""
+    def _aldous_broder_generation(self):
+        """Generate a maze using Aldous Broder algorithm"""
         maze_cells = self._create_maze_cells()
         modified_cells = []
         starting_cell = maze_cells[random.choice(range(self.rows))][random.choice(range(self.columns))]
@@ -142,11 +137,11 @@ class Maze:
             if random_neighbor in visited:
                 run.clear()
                 run.append(random_neighbor)
-        dead_ends = self._get_dead_ends(maze_cells)
-        return modified_cells, dead_ends
 
-    def _wilson_configuration(self):
-        """Return a maze using Wilson algorithm"""
+            yield modified_cells
+
+    def _wilson_generation(self):
+        """Generate a maze using Wilson algorithm"""
         maze_cells = self._create_maze_cells()
         unvisited = {cell for row in maze_cells for cell in row}
         starting_cell = random.choice(list(unvisited))
@@ -175,11 +170,11 @@ class Maze:
                     path.append(random.choice(list(unvisited)))
             if new_cell not in path and new_cell not in visited:
                 path.append(new_cell)
-        dead_ends = self._get_dead_ends(maze_cells)
-        return modified_cells, dead_ends
 
-    def _hunt_and_kill_configuration(self):
-        """Return a maze using hunt and kill algorithm"""
+            yield modified_cells
+
+    def _hunt_and_kill_generation(self):
+        """Generate a maze using hunt and kill algorithm"""
         maze_cells = self._create_maze_cells()
         unvisited = [cell for row in maze_cells for cell in row]
         starting_cell = random.choice(list(unvisited))
@@ -194,6 +189,7 @@ class Maze:
                 next_cell = random.choice(valid_neighbors)
                 current_cell.link(next_cell, maze_cells)
                 modified_cells.append((current_cell, next_cell))
+                yield modified_cells
                 visited.append(next_cell)
                 unvisited.remove(next_cell)
                 run.append(next_cell)
@@ -204,15 +200,14 @@ class Maze:
                         choice = random.choice(valid_neighbors)
                         cell.link(choice, maze_cells)
                         modified_cells.append((cell, choice))
+                        yield modified_cells
                         unvisited.remove(cell)
                         visited.append(cell)
                         run.append(cell)
                         break
-        dead_ends = self._get_dead_ends(maze_cells)
-        return modified_cells, dead_ends
 
-    def _recursive_back_tracker_configuration(self):
-        """Return a maze using a recursive backtracker"""
+    def _recursive_back_tracker_generation(self):
+        """Generate a maze using a recursive backtracker"""
         maze_cells = self._create_maze_cells()
         unvisited = [cell for row in maze_cells for cell in row]
         starting_cell = random.choice(unvisited)
@@ -233,7 +228,7 @@ class Maze:
         dead_ends = self._get_dead_ends(maze_cells)
         return modified, dead_ends
 
-    def generate_maze(self, algorithm, step):
+    def generate_maze(self, algorithm):
         """Generate a maze continuously
         yields an image every specified step
         """
@@ -244,7 +239,7 @@ class Maze:
             self.columns,
             self.rows
         )
-        cells, dead_ends = self.algorithms[algorithm]()
+        for cells in self.algorithms[algorithm]():
+            yield depiction.generate_image(cells)
 
-        for grid in depiction.generate_stream(cells, dead_ends, step):
-            yield grid
+        yield depiction.put_dots()
