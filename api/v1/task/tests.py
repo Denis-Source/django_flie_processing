@@ -75,8 +75,9 @@ class StartGenerationCreationTestCase(BaseAPITestCase):
             self.get_url(),
             {
                 "name": "maze1",
-                "width": 50,
-                "height": 50,
+                "columns": 50,
+                "rows": 50,
+                "scale": 3,
                 "algorithm": BINARY_TREE
             },
             headers={"Authorization": f"Token {self.get_user_token_value()}"}
@@ -90,8 +91,9 @@ class StartGenerationCreationTestCase(BaseAPITestCase):
             self.get_url(),
             {
                 "name": "maze1",
-                "width": 5,  # Invalid width value
-                "height": 50,
+                "columns": 1,  # Invalid columns value
+                "rows": 50,
+                "scale": 3,
                 "algorithm": BINARY_TREE
             },
             headers={"Authorization": f"Token {self.get_user_token_value()}"}
