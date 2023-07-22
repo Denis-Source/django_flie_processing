@@ -1,7 +1,7 @@
 from PIL import Image, ImageDraw
 
 
-class Depiction:
+class MazeDepiction:
     BLACK = "black"
     WHITE = "white"
     GREEN = "green"

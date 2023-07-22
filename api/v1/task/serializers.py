@@ -25,22 +25,24 @@ class TaskCreateSerializer(ModelSerializer):
         ]
 
 
-class MazeCreationTaskGenerationSerializer(ModelSerializer):
-    width = serializers.IntegerField(min_value=10, max_value=150)
-    height = serializers.IntegerField(min_value=10, max_value=150)
+class MazeCreationGenerationTaskSerializer(ModelSerializer):
     name = serializers.CharField(
         min_length=3,
         max_length=20,
         validators=[
             RegexValidator(
                 regex=r"^[a-zA-Z0-9_]+$",
-                message="Name can only contain alphanumeric characters and underscores.")])
+                message="Name can only contain alphanumeric characters and underscores")])
+    columns = serializers.IntegerField(min_value=2, max_value=200)
+    rows = serializers.IntegerField(min_value=2, max_value=200)
+    scale = serializers.IntegerField(min_value=1, max_value=5)
 
     class Meta:
         model = MazeGenerationTask
         fields = [
             "name",
-            "width",
-            "height",
+            "rows",
+            "columns",
+            "scale",
             "algorithm"
         ]

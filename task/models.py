@@ -17,15 +17,20 @@ class Task(models.Model):
         ERRORED = "errored"
         CANCELED = "canceled"
 
-    name = models.CharField(max_length=64, verbose_name="Name", help_text="Name of the task")
-    status = models.CharField(max_length=10, default=Statuses.CREATED, choices=Statuses.choices, verbose_name="Status",
-                              help_text="Current state of the task")
-    created_at = models.DateTimeField(editable=False, verbose_name="Creation date",
-                                      help_text="Date that the task was create")
-    closed_at = models.DateTimeField(null=True, blank=True, verbose_name="Closure date",
-                                     help_text="Date that the task was finished/errored")
-    initiator = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Task initiator",
-                                  help_text="User that initiated the task")
+    name = models.CharField(
+        max_length=64, verbose_name="Name", help_text="Name of the task")
+    status = models.CharField(
+        max_length=10, default=Statuses.CREATED, choices=Statuses.choices,
+        verbose_name="Status", help_text="Current state of the task")
+    created_at = models.DateTimeField(
+        editable=False, verbose_name="Creation date",
+        help_text="Date that the task was create")
+    closed_at = models.DateTimeField(
+        null=True, blank=True, verbose_name="Closure date",
+        help_text="Date that the task was finished/errored")
+    initiator = models.ForeignKey(
+        User, on_delete=models.CASCADE, verbose_name="Task initiator",
+        help_text="User that initiated the task")
 
     def __str__(self):
         return f"{self.status} {self.name}"
@@ -67,10 +72,21 @@ class MazeGenerationTask(Task):
         HUNT_AND_KILL = HUNT_AND_KILL
         RECURSIVE_BACKTRACKER = RECURSIVE_BACKTRACKER
 
-    width = models.IntegerField()
-    height = models.IntegerField()
-    algorithm = models.CharField(max_length=32, default=ALGORITHMS.BINARY_TREE, choices=ALGORITHMS.choices)
-    result = models.ImageField(upload_to="mazes", blank=True, null=True)
+    columns = models.IntegerField(
+        default=75,
+        verbose_name="Columns", help_text="Number of cells in a column")
+    rows = models.IntegerField(
+        default=75,
+        verbose_name="Rows", help_text="Number of cells in a row")
+    scale = models.IntegerField(
+        default=4,
+        verbose_name="Scale", help_text="Number of pixels per cell")
+    algorithm = models.CharField(
+        max_length=32, default=ALGORITHMS.BINARY_TREE, choices=ALGORITHMS.choices,
+        verbose_name="Generation algorithm", help_text="Algorithm used for maze generation")
+    result = models.ImageField(
+        upload_to="mazes", blank=True, null=True,
+        verbose_name="Result Image", help_text="Result Image")
 
     def set_result(self, result):
         self.result = result

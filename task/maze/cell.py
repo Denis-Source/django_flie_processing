@@ -56,14 +56,14 @@ class Cell:
 
     def link(self, other, grid):
         """Link 2 unconnected cells."""
-        if self in other.linked_cells or other in self.linked_cells:
-            raise CellValueError(f"{self} and {other} are already connected.")
-        if self.columns != other.columns or self.rows != other.rows:
-            raise CellValueError("Cannot connect cells in different grids.")
-        if self not in other.get_neighbors(grid) or other not in self.get_neighbors(grid):
-            raise CellValueError(f"{self} and {other} are not neighbors and cannot be connected.")
-        if not isinstance(other, Cell):
-            raise CellValueError(f"Cannot link Cell to {type(other)}.")
+        # if self in other.linked_cells or other in self.linked_cells:
+        #     raise CellValueError(f"{self} and {other} are already connected.")
+        # if self.columns != other.columns or self.rows != other.columns:
+        #     raise CellValueError("Cannot connect cells in different grids.")
+        # if self not in other.get_neighbors(grid) or other not in self.get_neighbors(grid):
+        #     raise CellValueError(f"{self} and {other} are not neighbors and cannot be connected.")
+        # if not isinstance(other, Cell):
+        #     raise CellValueError(f"Cannot link Cell to {type(other)}.")
         self.linked_cells.add(other)
         other.linked_cells.add(self)
 

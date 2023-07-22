@@ -1,48 +1,58 @@
 from logging import getLogger
 
 from asgiref.sync import async_to_sync
-from billiard.exceptions import SoftTimeLimitExceeded
+from celery import Task as CeleryTask
 from channels.layers import get_channel_layer
 
 from api.v1.task.consumers import TaskMessageTypes
-from api.v1.task.serializers import TaskSerializer
 from core.celery import app
-from task.maze.maze import Maze
-from task.maze.utils import convert_to_64, image_to_file
+from task.maze.utils import base64_file
 from task.models import MazeGenerationTask, Task
+from task.services import generate_image_stream, prepare_data
 from websocket.general import construct
 
 logger = getLogger()
 
 
-@app.task
-def generate_maze_task(task_id):
+class OnDemandTask(CeleryTask):
+    model_task_class = Task
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.db_task = None
+
+    def before_start(self, _, args, kwargs):
+        self.db_task = self.model_task_class.objects.get(id=kwargs["task_id"])
+        self.db_task.update_status(self.db_task.Statuses.RUNNING)
+
+    def on_success(self, retval, task_id, args, kwargs):
+        self.db_task.update_status(Task.Statuses.FINISHED)
+
+    def on_failure(self, exc, task_id, args, kwargs, einfo):
+        self.db_task.update_status(Task.Statuses.ERRORED)
+
+    def on_timeout(self, soft_timeout, **kwargs):
+        self.db_task.update_status(Task.Statuses.CANCELED)
+
+
+class OnDemandGenerateMazeTask(OnDemandTask):
+    model_task_class = MazeGenerationTask
+
+
+@app.task(bind=True, base=OnDemandGenerateMazeTask)
+def generate_maze(self, task_id):
     channel_layer = get_channel_layer()
-
-    task = MazeGenerationTask.objects.get(id=task_id)
-    task.update_status(MazeGenerationTask.Statuses.RUNNING)
-    maze = Maze(task.width, task.height, task.width * 12, task.height * 12, line_width=5)
-
-    image = None
-
-    data = TaskSerializer(task).data
-    try:
-        for i, image in enumerate(maze.generate_maze(task.algorithm)):
-            if i % 20 == 0:
-                data["extra"] = {
-                    "image": (convert_to_64(image))
-                }
-                async_to_sync(channel_layer.group_send)(
-                    task.initiator.username,
-                    construct(TaskMessageTypes.UPDATED, data))
-
-
-        task.update_status(MazeGenerationTask.Statuses.FINISHED)
-        if image:
-            async_to_sync(channel_layer.group_send)(
-                task.initiator.username,
-                construct(TaskMessageTypes.UPDATED, data))
-
-            task.set_result(image_to_file(image))
-    except SoftTimeLimitExceeded:
-        task.set_result(Task.Statuses.CANCELED)
+    for image64 in generate_image_stream(
+        self.db_task.columns,
+        self.db_task.rows,
+        self.db_task.scale,
+        self.db_task.algorithm,
+    ):
+        async_to_sync(channel_layer.group_send)(
+            self.db_task.initiator.username,
+            construct(
+                TaskMessageTypes.UPDATED,
+                prepare_data(self.db_task, extra={"image": image64})
+            ))
+    else:
+        self.db_task.set_result(base64_file(image64))

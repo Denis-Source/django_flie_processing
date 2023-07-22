@@ -10,10 +10,10 @@ from rest_framework.views import APIView
 from api.v1.task.filters import TaskFilter
 from api.v1.task.paginations import TaskPagination
 from api.v1.task.permisions import IsNotExceededOpenTasks
-from api.v1.task.serializers import MazeCreationTaskGenerationSerializer, TaskSerializer
+from api.v1.task.serializers import MazeCreationGenerationTaskSerializer, TaskSerializer
 from core import settings
 from task.models import MazeGenerationTask, Task
-from task.on_demand import generate_maze_task
+from task.on_demand import OnDemandGenerateMazeTask, generate_maze
 
 
 class ListHistoryTasks(ListAPIView):
@@ -55,7 +55,7 @@ class ListOpenedTasks(ListAPIView):
 class StartGenerationCreationView(GenericAPIView):
     permission_classes = [IsAuthenticated, IsNotExceededOpenTasks]
     authentication_classes = [TokenAuthentication]
-    serializer_class = MazeCreationTaskGenerationSerializer
+    serializer_class = MazeCreationGenerationTaskSerializer
 
     @swagger_auto_schema(
         responses={
@@ -69,16 +69,16 @@ class StartGenerationCreationView(GenericAPIView):
         Starts a celery task and the response will not contain a result"""
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        task = MazeGenerationTask(
+        task = MazeGenerationTask.objects.create(
             name=serializer.validated_data.get("name"),
             initiator=self.request.user,
-            width=serializer.validated_data.get("width"),
-            height=serializer.validated_data.get("height"),
+            columns=serializer.validated_data.get("columns"),
+            rows=serializer.validated_data.get("rows"),
+            scale=serializer.validated_data.get("scale"),
             algorithm=serializer.validated_data.get("algorithm")
         )
-        task.save()
 
-        generate_maze_task.apply_async(args=[task.id], soft_time_limit=settings.STALE_TASK_AGE)
+        generate_maze.apply_async(soft_time_limit=settings.STALE_TASK_AGE, kwargs={"task_id": task.id})
         return Response(status=status.HTTP_201_CREATED)
 
 
@@ -91,4 +91,4 @@ class AlgorithmChoicesView(APIView):
             200: "List of algorithms"})
     def get(self, request, *args, **kwargs):
         """Lists all available maze generation algorithms"""
-        return Response(MazeGenerationTask.ALGORITHMS.choices)
+        return Response(MazeGenerationTask.ALGORITHMS.values)
