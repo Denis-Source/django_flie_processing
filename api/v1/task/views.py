@@ -1,19 +1,13 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.generics import GenericAPIView, ListAPIView
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.response import Response
-from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView
+from rest_framework.permissions import IsAuthenticated
 
 from api.v1.task.filters import TaskFilter
 from api.v1.task.paginations import TaskPagination
-from api.v1.task.permisions import IsNotExceededOpenTasks
-from api.v1.task.serializers import MazeCreationGenerationTaskSerializer, TaskSerializer
-from core import settings
-from task.models import MazeGenerationTask, Task
-from task.on_demand import OnDemandGenerateMazeTask, generate_maze
+from api.v1.task.serializers import TaskSerializer
+from task.models import Task
 
 
 class ListHistoryTasks(ListAPIView):
@@ -50,45 +44,3 @@ class ListOpenedTasks(ListAPIView):
     def get(self, request, *args, **kwargs):
         """List opened tasks and their maximum acceptable amount"""
         return super().get(request, *args, **kwargs)
-
-
-class StartGenerationCreationView(GenericAPIView):
-    permission_classes = [IsAuthenticated, IsNotExceededOpenTasks]
-    authentication_classes = [TokenAuthentication]
-    serializer_class = MazeCreationGenerationTaskSerializer
-
-    @swagger_auto_schema(
-        responses={
-            201: "Task created",
-            400: "Bad data",
-            401: "Not Authorized",
-            403: "Task limit exceeded"
-        })
-    def post(self, request, *args, **kwargs):
-        """Generates a maze with the specified parameters
-        Starts a celery task and the response will not contain a result"""
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        task = MazeGenerationTask.objects.create(
-            name=serializer.validated_data.get("name"),
-            initiator=self.request.user,
-            columns=serializer.validated_data.get("columns"),
-            rows=serializer.validated_data.get("rows"),
-            scale=serializer.validated_data.get("scale"),
-            algorithm=serializer.validated_data.get("algorithm")
-        )
-
-        generate_maze.apply_async(soft_time_limit=settings.STALE_TASK_AGE, kwargs={"task_id": task.id})
-        return Response(status=status.HTTP_201_CREATED)
-
-
-class AlgorithmChoicesView(APIView):
-    permission_classes = [AllowAny]
-    authentication_classes = [TokenAuthentication]
-
-    @swagger_auto_schema(
-        responses={
-            200: "List of algorithms"})
-    def get(self, request, *args, **kwargs):
-        """Lists all available maze generation algorithms"""
-        return Response(MazeGenerationTask.ALGORITHMS.values)

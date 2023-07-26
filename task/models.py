@@ -2,7 +2,6 @@ from django.db import models
 from django.utils import timezone
 
 from core import settings
-from task.maze.maze import BINARY_TREE, SIDEWINDER, ALDOUS_BRODER, WILSON, HUNT_AND_KILL, RECURSIVE_BACKTRACKER
 from user.models import User
 
 
@@ -61,33 +60,3 @@ class Task(models.Model):
     @classmethod
     def get_closed_tasks(cls):
         return cls.objects.filter(status__in=[cls.Statuses.ERRORED, cls.Statuses.FINISHED, cls.Statuses.CANCELED])
-
-
-class MazeGenerationTask(Task):
-    class ALGORITHMS(models.TextChoices):
-        BINARY_TREE = BINARY_TREE
-        SIDEWINDER = SIDEWINDER
-        ALDOUS_BRODER = ALDOUS_BRODER
-        WILSON = WILSON
-        HUNT_AND_KILL = HUNT_AND_KILL
-        RECURSIVE_BACKTRACKER = RECURSIVE_BACKTRACKER
-
-    columns = models.IntegerField(
-        default=75,
-        verbose_name="Columns", help_text="Number of cells in a column")
-    rows = models.IntegerField(
-        default=75,
-        verbose_name="Rows", help_text="Number of cells in a row")
-    scale = models.IntegerField(
-        default=4,
-        verbose_name="Scale", help_text="Number of pixels per cell")
-    algorithm = models.CharField(
-        max_length=32, default=ALGORITHMS.BINARY_TREE, choices=ALGORITHMS.choices,
-        verbose_name="Generation algorithm", help_text="Algorithm used for maze generation")
-    result = models.ImageField(
-        upload_to="mazes", blank=True, null=True,
-        verbose_name="Result Image", help_text="Result Image")
-
-    def set_result(self, result):
-        self.result = result
-        self.save()

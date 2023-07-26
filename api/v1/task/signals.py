@@ -5,12 +5,11 @@ from django.dispatch import receiver
 
 from api.v1.task.consumers import TaskMessageTypes
 from api.v1.task.serializers import TaskSerializer
-from task.models import Task, MazeGenerationTask
+from task.models import Task
 from websocket.general import construct
 
 
 @receiver(post_save, sender=Task)
-@receiver(post_save, sender=MazeGenerationTask)
 def task_post_save_receiver(sender, instance, created, **kwargs):
     data = TaskSerializer(instance).data
     channel_layer = get_channel_layer()
