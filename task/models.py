@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 
 from core import settings
+from task.document.constants import INPUT_FORMATS, OUTPUT_FORMATS
 from user.models import User
 
 
@@ -60,3 +61,22 @@ class Task(models.Model):
     @classmethod
     def get_closed_tasks(cls):
         return cls.objects.filter(status__in=[cls.Statuses.ERRORED, cls.Statuses.FINISHED, cls.Statuses.CANCELED])
+
+
+class ConversionTask(Task):
+    INPUT_FOLDER = "inputs"
+    OUTPUT_FOLDER = "outputs"
+
+    input_file = models.FileField(
+        upload_to=INPUT_FOLDER, verbose_name="Input File", help_text="Input File")
+    output_file = models.FileField(
+        upload_to=OUTPUT_FOLDER, blank=True, null=True,
+        verbose_name="Output File", help_text="Output File")
+
+    def set_output_file(self, name):
+        self.output_file.name = name
+        self.save()
+
+class DocumentConversionTask(ConversionTask):
+    input_format = models.CharField(max_length=3, choices=INPUT_FORMATS)
+    output_format = models.CharField(max_length=3, choices=OUTPUT_FORMATS)
