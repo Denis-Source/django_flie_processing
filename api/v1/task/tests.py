@@ -1,7 +1,7 @@
 from rest_framework import status
 
 from api.tests import BaseAPITestCase
-from task.models import MazeGenerationTask, Task
+from task.models import Task
 
 
 class BaseListTaskTestCase(BaseAPITestCase):
