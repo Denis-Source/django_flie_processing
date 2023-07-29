@@ -23,7 +23,7 @@ def convert_file(input_file: File, frmt: str, output_file=None):
             f"{input_path.stem}.{frmt}"
         )
         makedirs(output_path.parent, exist_ok=True)
-        output_file = File(open(output_path, "w"))
+        output_file = File(open(output_path, "wb"))
 
     convert_paths(os.path.join(settings.MEDIA_ROOT, input_file.name), OUTPUT_FORMATS[frmt], output_file.name)
     output_file.name = output_file.name.replace(f"{settings.MEDIA_ROOT}/", "")
