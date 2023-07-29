@@ -17,5 +17,5 @@ class ConversionTaskAdmin(TaskAdmin):
 
 @admin.register(DocumentConversionTask)
 class DocumentConversionTaskAdmin(TaskAdmin):
-    list_display = ("id", "status", "name", "created_at", "closed_at", "input_format", "output_format")
-    list_filter = ("status", "input_format", "output_format")
+    list_display = ("id", "status", "name", "created_at", "closed_at", "output_format")
+    list_filter = ("status", "output_format")

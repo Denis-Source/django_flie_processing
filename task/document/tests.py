@@ -3,7 +3,7 @@ import tempfile
 
 from django.test import TestCase
 
-from task.document.services import convert_paths, convert_files
+from task.document.services import convert_paths, convert_file
 
 
 class DocumentTestCase(TestCase):
@@ -39,7 +39,7 @@ class DocumentTestCase(TestCase):
             self.assertEqual(self.expected, content)
 
     def test_convert_files(self):
-        output = convert_files(self.temp_input, "md", self.temp_output)
+        output = convert_file(self.temp_input, "md", self.temp_output)
         with open(self.temp_output.name, "r") as f:
             content = f.read()
             self.assertEqual(self.expected, content)

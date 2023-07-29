@@ -1,16 +1,18 @@
+import os.path
 from os import makedirs
 from pathlib import Path
-from pypandoc import convert_file
+from pypandoc import convert_file as convert_pandoc_path
 from django.core.files.base import ContentFile, File
 
 from core import settings
+from task.document.constants import OUTPUT_FORMATS
 from task.models import DocumentConversionTask
 
 
 def convert_paths(input_path: str, frmt: str, output_path: str):
-    convert_file(input_path, frmt, outputfile=output_path)
+    convert_pandoc_path(input_path, frmt, outputfile=output_path)
 
-def convert_files(input_file: File, frmt: str, output_file=None):
+def convert_file(input_file: File, frmt: str, output_file=None):
     # TODO properly close a file
     input_path = Path(input_file.name)
 
@@ -23,7 +25,7 @@ def convert_files(input_file: File, frmt: str, output_file=None):
         makedirs(output_path.parent, exist_ok=True)
         output_file = File(open(output_path, "w"))
 
-
-    convert_paths(input_file.name, frmt, output_file.name)
+    convert_paths(os.path.join(settings.MEDIA_ROOT, input_file.name), OUTPUT_FORMATS[frmt], output_file.name)
+    output_file.name = output_file.name.replace(f"{settings.MEDIA_ROOT}/", "")
     return output_file
 

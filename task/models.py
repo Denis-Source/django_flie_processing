@@ -2,7 +2,7 @@ from django.db import models
 from django.utils import timezone
 
 from core import settings
-from task.document.constants import INPUT_FORMATS, OUTPUT_FORMATS
+from task.document.constants import OUTPUT_FORMATS_CHOICES
 from user.models import User
 
 
@@ -29,8 +29,8 @@ class Task(models.Model):
         null=True, blank=True, verbose_name="Closure date",
         help_text="Date that the task was finished/errored")
     initiator = models.ForeignKey(
-        User, on_delete=models.CASCADE, verbose_name="Task initiator",
-        help_text="User that initiated the task")
+        User, on_delete=models.SET_NULL, null=True,
+        verbose_name="Task initiator", help_text="User that initiated the task")
 
     def __str__(self):
         return f"{self.status} {self.name}"
@@ -73,10 +73,10 @@ class ConversionTask(Task):
         upload_to=OUTPUT_FOLDER, blank=True, null=True,
         verbose_name="Output File", help_text="Output File")
 
-    def set_output_file(self, name):
-        self.output_file.name = name
+    def set_output_file(self, file):
+        self.output_file.name = file.name
         self.save()
 
+
 class DocumentConversionTask(ConversionTask):
-    input_format = models.CharField(max_length=3, choices=INPUT_FORMATS)
-    output_format = models.CharField(max_length=3, choices=OUTPUT_FORMATS)
+    output_format = models.CharField(max_length=21, choices=OUTPUT_FORMATS_CHOICES)
