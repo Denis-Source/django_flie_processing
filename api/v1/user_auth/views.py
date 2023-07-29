@@ -25,7 +25,7 @@ class AuthDetailAPIView(RetrieveAPIView):
             200: UserDetailSerializer,
             401: "Unauthenticated"})
     def get(self, request, *args, **kwargs):
-        super().get(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
 
 class AuthRegisterAPIView(CreateAPIView):
