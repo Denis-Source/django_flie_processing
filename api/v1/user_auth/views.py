@@ -19,6 +19,14 @@ class AuthDetailAPIView(RetrieveAPIView):
     def get_object(self):
         return self.request.user
 
+    @swagger_auto_schema(
+        tags=["User",],
+        responses={
+            200: UserDetailSerializer,
+            401: "Unauthenticated"})
+    def get(self, request, *args, **kwargs):
+        super().get(request, *args, **kwargs)
+
 
 class AuthRegisterAPIView(CreateAPIView):
     model = User
@@ -32,6 +40,7 @@ class AuthRegisterAPIView(CreateAPIView):
         self.obj = serializer.save()
 
     @swagger_auto_schema(
+        tags=["User", "Registration",],
         responses={
             201: "User created successfully",
             400: "Bad data"})
@@ -49,6 +58,7 @@ class AuthLoginAPIView(GenericAPIView):
     serializer_class = UserLoginSerializer
 
     @swagger_auto_schema(
+        tags=["User", "Login",],
         responses={
             200: "User token",
             400: "Bad credentials",

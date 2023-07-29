@@ -15,13 +15,17 @@ class DocumentConversionTaskSerializer(ModelSerializer):
             "name",
             "status",
             "created_at",
-            "input_file",
+            "closed_at",
             "output_format",
+            "input_file",
+            "output_file",
         ]
         read_only_fields = (
             "id",
             "status",
             "created_at",
+            "closed_at",
+            "output_file",
         )
 
     def validate_input_file(self, value):

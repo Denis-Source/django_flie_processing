@@ -22,6 +22,7 @@ class ListHistoryTasks(ListAPIView):
         return Task.get_closed_tasks().filter(initiator=self.request.user)
 
     @swagger_auto_schema(
+        tags=["Task",],
         responses={
             200: "List of closed tasks",
             401: "Unauthorized"})
@@ -38,6 +39,7 @@ class ListOpenedTasks(ListAPIView):
         return Task.get_opened_tasks().filter(initiator=self.request.user)
 
     @swagger_auto_schema(
+        tags=["Task",],
         responses={
             200: "List of opened tasks",
             401: "Unauthorized"})

@@ -18,7 +18,7 @@ class Task(models.Model):
         CANCELED = "canceled"
 
     name = models.CharField(
-        max_length=64, verbose_name="Name", help_text="Name of the task")
+        max_length=24, verbose_name="Name", help_text="Name of the task")
     status = models.CharField(
         max_length=10, default=Statuses.CREATED, choices=Statuses.choices,
         verbose_name="Status", help_text="Current state of the task")
@@ -79,4 +79,4 @@ class ConversionTask(Task):
 
 
 class DocumentConversionTask(ConversionTask):
-    output_format = models.CharField(max_length=21, choices=OUTPUT_FORMATS_CHOICES)
+    output_format = models.CharField(max_length=12, choices=OUTPUT_FORMATS_CHOICES)
