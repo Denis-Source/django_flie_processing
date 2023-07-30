@@ -2,7 +2,8 @@ from django.db import models
 from django.utils import timezone
 
 from core import settings
-from task.document.constants import OUTPUT_FORMATS_CHOICES
+from task.document.constants import OUTPUT_FORMATS_CHOICES as DOCUMENT_OUTPUT_FORMATS_CHOICES
+from task.image.constants import OUTPUT_FORMATS_CHOICES as IMAGE_OUTPUT_FORMATS_CHOICES
 from user.models import User
 
 
@@ -79,4 +80,8 @@ class ConversionTask(Task):
 
 
 class DocumentConversionTask(ConversionTask):
-    output_format = models.CharField(max_length=12, choices=OUTPUT_FORMATS_CHOICES)
+    output_format = models.CharField(max_length=12, choices=DOCUMENT_OUTPUT_FORMATS_CHOICES)
+
+class ImageConversionTask(ConversionTask):
+    output_format = models.CharField(max_length=4, choices=IMAGE_OUTPUT_FORMATS_CHOICES)
+    quality = models.IntegerField(default=100)
