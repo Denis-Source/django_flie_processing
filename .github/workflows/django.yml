@@ -19,17 +19,13 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-    strategy:
-      max-parallel: 4
-      matrix:
-        python-version: [3.10]
 
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python
       uses: actions/setup-python@v3
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: "3.10"
     - name: Install pandoc with latex
       run: | 
         sudo apt-get update
