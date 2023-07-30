@@ -25,9 +25,10 @@ INSTALLED_APPS = [
 
     "user",
     "task",
+    "task.document",
     "api.v1.user_auth",
-    "api.v1.task",
     "api.v1.task.document",
+    "api.v1.task.image",
 ]
 
 # Middleware

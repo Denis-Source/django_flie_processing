@@ -9,7 +9,7 @@ from task.document.constants import OUTPUT_FORMATS
 from task.models import DocumentConversionTask
 
 
-def convert_paths(input_path: str, frmt: str, output_path: str):
+def convert_path(input_path: str, frmt: str, output_path: str):
     convert_pandoc_path(input_path, frmt, outputfile=output_path)
 
 def convert_file(input_file: File, frmt: str, output_file=None):
@@ -25,7 +25,7 @@ def convert_file(input_file: File, frmt: str, output_file=None):
         makedirs(output_path.parent, exist_ok=True)
         output_file = File(open(output_path, "wb"))
 
-    convert_paths(os.path.join(settings.MEDIA_ROOT, input_file.name), OUTPUT_FORMATS[frmt], output_file.name)
+    convert_path(os.path.join(settings.MEDIA_ROOT, input_file.name), OUTPUT_FORMATS[frmt], output_file.name)
     output_file.name = output_file.name.replace(f"{settings.MEDIA_ROOT}/", "")
     return output_file
 

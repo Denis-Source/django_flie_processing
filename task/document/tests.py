@@ -3,7 +3,7 @@ import tempfile
 
 from django.test import TestCase
 
-from task.document.services import convert_paths, convert_file
+from task.document.services import convert_path, convert_file
 
 
 class DocumentTestCase(TestCase):
@@ -28,12 +28,12 @@ class DocumentTestCase(TestCase):
         self.temp_output.close()
 
     def tearDown(self):
+        super().tearDown()
         os.remove(self.temp_input.name)
         os.remove(self.temp_output.name)
-        super().tearDown()
 
     def test_convert_paths(self):
-        convert_paths(self.temp_input.name, "md", self.temp_output.name)
+        convert_path(self.temp_input.name, "md", self.temp_output.name)
         with open(self.temp_output.name, "r") as f:
             content = f.read()
             self.assertEqual(self.expected, content)
