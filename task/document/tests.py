@@ -33,7 +33,7 @@ class DocumentTestCase(TestCase):
         os.remove(self.temp_output.name)
 
     def test_convert_paths(self):
-        convert_path(self.temp_input.name, "md", self.temp_output.name)
+        convert_path(self.temp_input.name, "markdown", self.temp_output.name)
         with open(self.temp_output.name, "r") as f:
             content = f.read()
             self.assertEqual(self.expected, content)
