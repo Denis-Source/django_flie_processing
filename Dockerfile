@@ -12,6 +12,4 @@ COPY . /django_file_processing/
 COPY requirements.txt /django_file_processing/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose port for outside connections
-EXPOSE 8000
 CMD ["python3", "main.py"]
