@@ -27,9 +27,9 @@ class BaseAPITestCase(TestCase):
             password=self.user_password
         )
 
-    def get_url(self):
+    def get_url(self, **kwargs):
         """Gets api endpoint url based on specified class variable"""
-        return reverse(self.url_name)
+        return reverse(self.url_name, kwargs=kwargs)
 
     def logged_user_response(self):
         """Logins user, gets authorized response which includes a token"""
