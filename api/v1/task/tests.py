@@ -31,7 +31,7 @@ class ListHistoryTestCase(BaseListTaskTestCase):
             {
                 "page_size": self.n
             },
-            headers={"Authorization": f"Token {self.get_user_token_value()}"}
+            headers=self.auth_headers
         )
         a = Task.get_opened_tasks()
         self.assertTrue(len(Task.get_closed_tasks().filter(initiator=self.user)))
@@ -53,7 +53,7 @@ class ListOpenedTestCase(BaseListTaskTestCase):
         """Should retrieve a list of opened tasks"""
         response = self.client.get(
             self.get_url(),
-            headers={"Authorization": f"Token {self.get_user_token_value()}"}
+            headers=self.auth_headers
         )
         self.assertTrue(len(Task.get_closed_tasks().filter(initiator=self.user)))
         self.assertEqual(response.status_code, status.HTTP_200_OK)

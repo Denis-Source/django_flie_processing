@@ -26,6 +26,7 @@ class BaseAPITestCase(TestCase):
             email=self.another_user_email,
             password=self.user_password
         )
+        self.auth_headers = {"Authorization": f"Token {self.get_user_token_value()}"}
 
     def get_url(self, **kwargs):
         """Gets api endpoint url based on specified class variable"""

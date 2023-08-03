@@ -42,7 +42,7 @@ class CreateClipBoardTestCase(BaseAPITestCase):
                 "file": self.file,
                 "auto_delete": False,
             },
-            headers={"Authorization": f"Token {self.get_user_token_value()}"}
+            headers=self.auth_headers
         )
         data = response.json()
         clipboard = ClipBoard.objects.get(id=data.get("id"))
@@ -93,7 +93,7 @@ class RetrieveClipBoardTask(BaseAPITestCase):
         """Should return clipboard if request is authorized and valid id is provided"""
         response = self.client.get(
             self.get_url(id=self.clipboard.id),
-            headers={"Authorization": f"Token {self.get_user_token_value()}"}
+            headers=self.auth_headers
         )
         data = response.json()
         self.assertEqual(response.status_code, 200)
@@ -111,7 +111,7 @@ class RetrieveClipBoardTask(BaseAPITestCase):
         non_existent_id = 200
         response = self.client.get(
             self.get_url(id=non_existent_id),
-            headers={"Authorization": f"Token {self.get_user_token_value()}"}
+            headers=self.auth_headers
         )
         self.assertFalse(ClipBoard.objects.filter(id=non_existent_id).exists())
         self.assertEqual(response.status_code, 404)
@@ -120,7 +120,7 @@ class RetrieveClipBoardTask(BaseAPITestCase):
         """Should return 404 if id of another user is prvided """
         response = self.client.get(
             self.get_url(id=self.another_clipboard.id),
-            headers={"Authorization": f"Token {self.get_user_token_value()}"}
+            headers=self.auth_headers
         )
         self.assertNotEqual(self.user, self.another_clipboard.user)
         self.assertTrue(ClipBoard.objects.filter(id=self.clipboard.id).exists())
@@ -159,7 +159,7 @@ class ListClipBoardTestCase(BaseAPITestCase):
         """Should return a list of clipboards if request is authorized"""
         response = self.client.get(
             self.get_url(),
-            headers={"Authorization": f"Token {self.get_user_token_value()}"}
+            headers=self.auth_headers
         )
         self.assertEqual(response.status_code, 200)
         results = response.json().get("results")

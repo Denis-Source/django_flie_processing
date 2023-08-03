@@ -32,7 +32,7 @@ class RetrieveDocumentFormatsViewTestCase(BaseAPITestCase):
         """Should return a list of available formant if user is authorized"""
         response = self.client.get(
             self.get_url(),
-            headers={"Authorization": f"Token {self.get_user_token_value()}"}
+            headers=self.auth_headers
         )
         self.assertEqual(self.expected, response.json())
 
@@ -63,7 +63,7 @@ class CreateDocumentConversionTaskTestCase(BaseAPITestCase):
                     "output_format": self.output_format,
                     "input_file": f
                 },
-                headers={"Authorization": f"Token {self.get_user_token_value()}"}
+                headers=self.auth_headers
             )
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()["status"], Task.Statuses.CREATED)
@@ -89,7 +89,7 @@ class CreateDocumentConversionTaskTestCase(BaseAPITestCase):
                 "name": "test_task_1",
                 "output_format": self.output_format,
             },
-            headers={"Authorization": f"Token {self.get_user_token_value()}"}
+            headers=self.auth_headers
         )
         self.assertEqual(response.status_code, 400)
 
@@ -103,7 +103,7 @@ class CreateDocumentConversionTaskTestCase(BaseAPITestCase):
                     "output_format": "md",  # wrong format
                     "input_file": f
                 },
-                headers={"Authorization": f"Token {self.get_user_token_value()}"}
+                headers=self.auth_headers
             )
         self.assertEqual(response.status_code, 400)
 
@@ -139,7 +139,7 @@ class RetrieveDocumentConversionTaskTestCase(BaseAPITestCase):
         """Should return a task detail if credentials, task id and user initiator is correct"""
         response = self.client.get(
             self.get_url(self.user_task.id),
-            headers={"Authorization": f"Token {self.get_user_token_value()}"}
+            headers=self.auth_headers
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.user_task.id, response.json()["id"])
@@ -149,7 +149,7 @@ class RetrieveDocumentConversionTaskTestCase(BaseAPITestCase):
         non_existent_task_id = 200
         response = self.client.get(
             self.get_url(non_existent_task_id),
-            headers={"Authorization": f"Token {self.get_user_token_value()}"}
+            headers=self.auth_headers
         )
         self.assertFalse(ImageConversionTask.objects.filter(id=non_existent_task_id).first())
         self.assertEqual(response.status_code, 404)
@@ -159,7 +159,7 @@ class RetrieveDocumentConversionTaskTestCase(BaseAPITestCase):
         other_task_id = self.other_task.id
         response = self.client.get(
             self.get_url(other_task_id),
-            headers={"Authorization": f"Token {self.get_user_token_value()}"}
+            headers=self.auth_headers
         )
         self.assertTrue(ImageConversionTask.objects.filter(id=other_task_id).exists())
         self.assertEqual(response.status_code, 404)
