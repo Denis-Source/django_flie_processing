@@ -142,6 +142,7 @@ CELERY_BEAT_SCHEDULE = {
     },
 }
 STALE_TASK_AGE = 1 * 60  # in seconds
+CLIPBOARD_MEDIA_AGE = 30 # in days
 
 # Channels
 CHANNEL_LAYERS = {

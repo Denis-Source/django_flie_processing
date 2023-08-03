@@ -1,7 +1,7 @@
-from datetime import timezone
-
 from django.db import models
+from django.utils import timezone
 
+from core import settings
 from user.models import User
 
 
@@ -15,7 +15,7 @@ class ClipBoard(models.Model):
         OTHER = "other"
 
     name = models.CharField(
-        max_length=32, unique=True,
+        max_length=32,
         verbose_name="Name", help_text="Name of the clipboard"
     )
     media_type = models.CharField(
@@ -26,11 +26,15 @@ class ClipBoard(models.Model):
         upload_to=FOLDER,
         verbose_name="Media file", help_text="Media file"
     )
-
     created_at = models.DateTimeField(
-        null=True, blank=True,
+        default=timezone.now,
         verbose_name="Creation date",
         help_text="Date the clipboard was created at"
+    )
+    auto_delete = models.BooleanField(
+        default=True,
+        verbose_name="Auto delete flag",
+        help_text="Whether the media will be deleted after some time"
     )
     user = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True,
@@ -40,7 +44,11 @@ class ClipBoard(models.Model):
     def __str__(self):
         return f"{self.user} {self.media_type} {self.name}"
 
-    def save(self, *args, **kwargs):
-        if not self.id:
-            self.created_at = timezone.now()
-        return super().save(*args, **kwargs)
+    @classmethod
+    def get_stale_clipboards(cls):
+        cutoff_time = timezone.now() - timezone.timedelta(days=settings.CLIPBOARD_MEDIA_AGE)
+        return cls.objects.filter(created_at__lte=cutoff_time, auto_delete=True)
+
+    @classmethod
+    def get_users_clipboard(cls, user: User):
+        return cls.objects.filter(user=user)

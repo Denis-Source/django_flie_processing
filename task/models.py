@@ -82,6 +82,7 @@ class ConversionTask(Task):
 class DocumentConversionTask(ConversionTask):
     output_format = models.CharField(max_length=12, choices=DOCUMENT_OUTPUT_FORMATS_CHOICES)
 
+
 class ImageConversionTask(ConversionTask):
     output_format = models.CharField(max_length=4, choices=IMAGE_OUTPUT_FORMATS_CHOICES)
     quality = models.IntegerField(default=100)

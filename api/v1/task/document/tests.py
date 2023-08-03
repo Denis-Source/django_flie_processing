@@ -6,6 +6,7 @@ from django.urls import reverse
 from api.tests import BaseAPITestCase
 from task.document.constants import INPUT_FORMATS, OUTPUT_FORMATS
 from task.models import Task, DocumentConversionTask
+from utils.generation import generate_document
 
 
 class RetrieveDocumentFormatsViewTestCase(BaseAPITestCase):
@@ -40,18 +41,11 @@ class CreateDocumentConversionTaskTestCase(BaseAPITestCase):
 
     def setUp(self) -> None:
         super().setUp()
-        self.content = b"<!DOCTYPE html>" \
-                       b"<html>" \
-                       b"<body>" \
-                       b"<h1>First Heading</h1>" \
-                       b"<p>First paragraph.</p>" \
-                       b"</body>" \
-                       b"</html>"
-        self.expected = "# First Heading\n\n" \
-                        "First paragraph.\n"
 
         self.input_format = ".html"
         self.output_format = "md"
+
+        self.content, self.expected = generate_document()
 
         self.temp_input = tempfile.NamedTemporaryFile(delete=False, suffix=self.input_format)
         self.temp_input.write(self.content)

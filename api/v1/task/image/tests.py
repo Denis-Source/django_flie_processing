@@ -1,5 +1,4 @@
 import tempfile
-from random import randint
 
 from PIL import Image
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -7,8 +6,8 @@ from django.urls import reverse
 
 from api.tests import BaseAPITestCase
 from task.image.constants import INPUT_FORMATS, OUTPUT_FORMATS
-from task.image.tests import generate_noisy_image
 from task.models import Task, ImageConversionTask
+from utils.generation import generate_noisy_image
 
 
 class RetrieveDocumentFormatsViewTestCase(BaseAPITestCase):
