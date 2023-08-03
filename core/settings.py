@@ -23,12 +23,23 @@ INSTALLED_APPS = [
     "channels",
     "django_celery_beat",
 
+    # apps
     "user",
+
     "task",
     "task.document",
+    "task.image",
+
+    "clipboard",
+    
+    # APIs
     "api.v1.user_auth",
+
+    "api.v1.task",
     "api.v1.task.document",
     "api.v1.task.image",
+
+    "api.v1.clipboard",
 ]
 
 # Middleware
@@ -135,6 +146,7 @@ CELERY_BEAT_SCHEDULE = {
     },
 }
 STALE_TASK_AGE = 1 * 60  # in seconds
+CLIPBOARD_MEDIA_AGE = 30 # in days
 
 # Channels
 CHANNEL_LAYERS = {

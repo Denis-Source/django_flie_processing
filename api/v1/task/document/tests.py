@@ -6,6 +6,7 @@ from django.urls import reverse
 from api.tests import BaseAPITestCase
 from task.document.constants import INPUT_FORMATS, OUTPUT_FORMATS
 from task.models import Task, DocumentConversionTask
+from utils.generation import generate_document
 
 
 class RetrieveDocumentFormatsViewTestCase(BaseAPITestCase):
@@ -40,18 +41,11 @@ class CreateDocumentConversionTaskTestCase(BaseAPITestCase):
 
     def setUp(self) -> None:
         super().setUp()
-        self.content = b"<!DOCTYPE html>" \
-                       b"<html>" \
-                       b"<body>" \
-                       b"<h1>First Heading</h1>" \
-                       b"<p>First paragraph.</p>" \
-                       b"</body>" \
-                       b"</html>"
-        self.expected = "# First Heading\n\n" \
-                        "First paragraph.\n"
 
         self.input_format = ".html"
         self.output_format = "md"
+
+        self.content, self.expected = generate_document()
 
         self.temp_input = tempfile.NamedTemporaryFile(delete=False, suffix=self.input_format)
         self.temp_input.write(self.content)
@@ -136,13 +130,10 @@ class RetrieveDocumentConversionTaskTestCase(BaseAPITestCase):
             **self.data
         )
 
-    def get_url(self, task_id):
-        return reverse(self.url_name, kwargs={"id": task_id})
-
     def test_success(self):
         """Should return a task detail if credentials, task id and user initiator is correct"""
         response = self.client.get(
-            self.get_url(self.user_task.id),
+            self.get_url(id=self.user_task.id),
             headers={"Authorization": f"Token {self.get_user_token_value()}"}
         )
         self.assertEqual(response.status_code, 200)
@@ -152,7 +143,7 @@ class RetrieveDocumentConversionTaskTestCase(BaseAPITestCase):
         """Should return 404 if provided task does not exist"""
         non_existent_task_id = 200
         response = self.client.get(
-            self.get_url(non_existent_task_id),
+            self.get_url(id=non_existent_task_id),
             headers={"Authorization": f"Token {self.get_user_token_value()}"}
         )
         self.assertFalse(DocumentConversionTask.objects.filter(id=non_existent_task_id).first())
@@ -162,7 +153,7 @@ class RetrieveDocumentConversionTaskTestCase(BaseAPITestCase):
         """Should return 404 if provided task exists, but it initiated by other user"""
         other_task_id = self.other_task.id
         response = self.client.get(
-            self.get_url(other_task_id),
+            self.get_url(id=other_task_id),
             headers={"Authorization": f"Token {self.get_user_token_value()}"}
         )
         self.assertTrue(DocumentConversionTask.objects.filter(id=other_task_id).exists())
@@ -171,6 +162,6 @@ class RetrieveDocumentConversionTaskTestCase(BaseAPITestCase):
     def test_unauthorized(self):
         """Should return 401 if credentials are not provided"""
         response = self.client.get(
-            self.get_url(self.user_task.id),
+            self.get_url(id=self.user_task.id),
         )
         self.assertEqual(response.status_code, 401)
