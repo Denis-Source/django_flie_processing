@@ -7,6 +7,7 @@ from django.urls import reverse
 
 from api.tests import BaseAPITestCase
 from task.image.constants import INPUT_FORMATS, OUTPUT_FORMATS
+from task.image.tests import generate_noisy_image
 from task.models import Task, ImageConversionTask
 
 
@@ -40,27 +41,11 @@ class RetrieveDocumentFormatsViewTestCase(BaseAPITestCase):
 class CreateDocumentConversionTaskTestCase(BaseAPITestCase):
     url_name = "v1-convert-image-create"
 
-    @staticmethod
-    def _generate_noisy_image(image, noise_intensity=30):
-        width, height = image.size
-        for y in range(height):
-            for x in range(width):
-                r, g, b = image.getpixel((x, y))
-                noise_r = randint(-noise_intensity, noise_intensity)
-                noise_g = randint(-noise_intensity, noise_intensity)
-                noise_b = randint(-noise_intensity, noise_intensity)
-
-                r = max(0, min(255, r + noise_r))
-                g = max(0, min(255, g + noise_g))
-                b = max(0, min(255, b + noise_b))
-                image.putpixel((x, y), (r, g, b))
-        return image
-
     def setUp(self) -> None:
         super().setUp()
         self.size = 100, 100
         self.image = Image.new("RGB", self.size, "white")
-        self.image = self._generate_noisy_image(self.image)
+        self.image = generate_noisy_image(self.image)
 
         self.input_format = ".png"
         self.output_format = "jpeg"

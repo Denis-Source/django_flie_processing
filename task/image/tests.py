@@ -8,24 +8,22 @@ from django.test import TestCase
 from task.image.constants import COLOR_MODES
 from task.image.serivces import convert_path, convert_file
 
+def generate_noisy_image(image,  noise_intensity=30):
+    width, height = image.size
+    for y in range(height):
+        for x in range(width):
+            r, g, b = image.getpixel((x, y))
+            noise_r = randint(-noise_intensity, noise_intensity)
+            noise_g = randint(-noise_intensity, noise_intensity)
+            noise_b = randint(-noise_intensity, noise_intensity)
+
+            r = max(0, min(255, r + noise_r))
+            g = max(0, min(255, g + noise_g))
+            b = max(0, min(255, b + noise_b))
+            image.putpixel((x, y), (r, g, b))
+    return image
 
 class ImageTestCase(TestCase):
-    @staticmethod
-    def _generate_noisy_image(image, noise_intensity=30):
-        width, height = image.size
-        for y in range(height):
-            for x in range(width):
-                r, g, b = image.getpixel((x, y))
-                noise_r = randint(-noise_intensity, noise_intensity)
-                noise_g = randint(-noise_intensity, noise_intensity)
-                noise_b = randint(-noise_intensity, noise_intensity)
-
-                r = max(0, min(255, r + noise_r))
-                g = max(0, min(255, g + noise_g))
-                b = max(0, min(255, b + noise_b))
-                image.putpixel((x, y), (r, g, b))
-        return image
-
     def setUp(self) -> None:
         self.input_suffix = "png"
         self.another_output_suffix = "msp"
@@ -34,7 +32,7 @@ class ImageTestCase(TestCase):
         self.size = 100, 100
 
         self.image = Image.new("RGB", self.size, "white")
-        self.image = self._generate_noisy_image(self.image)
+        self.image = generate_noisy_image(self.image)
 
         self.temp_input = NamedTemporaryFile(delete=False, suffix=f".{self.input_suffix}")
         self.temp_input.close()
