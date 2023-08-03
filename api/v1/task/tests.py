@@ -1,6 +1,7 @@
 from rest_framework import status
 
 from api.tests import BaseAPITestCase
+from api.v1.task import urls
 from task.models import Task
 
 
@@ -22,7 +23,7 @@ class BaseListTaskTestCase(BaseAPITestCase):
 
 
 class ListHistoryTestCase(BaseListTaskTestCase):
-    url_name = "v1-task-history"
+    url_name = urls.HISTORY
 
     def test_history_success(self):
         """Should retrieve a list of task history"""
@@ -47,7 +48,7 @@ class ListHistoryTestCase(BaseListTaskTestCase):
 
 
 class ListOpenedTestCase(BaseListTaskTestCase):
-    url_name = "v1-task-opened"
+    url_name = urls.OPENED
 
     def test_opened_success(self):
         """Should retrieve a list of opened tasks"""

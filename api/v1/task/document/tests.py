@@ -3,13 +3,14 @@ import tempfile
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from api.tests import BaseAPITestCase
+from api.v1.task.document import urls
 from task.document.constants import INPUT_FORMATS, OUTPUT_FORMATS
 from task.models import Task, DocumentConversionTask
 from utils.generation import generate_document
 
 
 class RetrieveDocumentFormatsViewTestCase(BaseAPITestCase):
-    url_name = "v1-convert-document-formats"
+    url_name = urls.FORMATS
 
     def setUp(self) -> None:
         super().setUp()
@@ -36,7 +37,7 @@ class RetrieveDocumentFormatsViewTestCase(BaseAPITestCase):
 
 
 class CreateDocumentConversionTaskTestCase(BaseAPITestCase):
-    url_name = "v1-convert-document-create"
+    url_name = urls.CREATE
 
     def setUp(self) -> None:
         super().setUp()
@@ -106,7 +107,7 @@ class CreateDocumentConversionTaskTestCase(BaseAPITestCase):
 
 
 class RetrieveDocumentConversionTaskTestCase(BaseAPITestCase):
-    url_name = "v1-convert-document-retrieve"
+    url_name = urls.RETRIEVE
 
     def setUp(self) -> None:
         super().setUp()

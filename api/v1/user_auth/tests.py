@@ -2,11 +2,12 @@ from django.contrib import auth
 from rest_framework import status
 
 from api.tests import BaseAPITestCase
+from api.v1.user_auth import urls
 from api.v1.user_auth.serializers import UserDetailSerializer
 
 
 class RegisterAPITestCase(BaseAPITestCase):
-    url_name = "v1-register"
+    url_name = urls.REGISTER
 
     def test_registration_already_exists(self):
         """If the user is already registered, should return 400 status"""
@@ -35,7 +36,7 @@ class RegisterAPITestCase(BaseAPITestCase):
 
 
 class LoginAPITestCase(BaseAPITestCase):
-    url_name = "v1-login"
+    url_name = urls.LOGIN
 
     def test_login_success(self):
         """If provided data is correct, should return 200 status
@@ -78,7 +79,7 @@ class LoginAPITestCase(BaseAPITestCase):
 
 
 class ProfileDetailAPITestCase(BaseAPITestCase):
-    url_name = "v1-profile"
+    url_name = urls.PROFILE
 
     def test_not_authenticated(self):
         """If user is not authorized, should return 401 status"""

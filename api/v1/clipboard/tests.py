@@ -1,11 +1,12 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from api.tests import BaseAPITestCase
+from api.v1.clipboard import urls
 from clipboard.models import ClipBoard
 
 
 class CreateClipBoardTestCase(BaseAPITestCase):
-    url_name = "v1-clipboard-create"
+    url_name = urls.CREATE
 
     def setUp(self) -> None:
         super().setUp()
@@ -64,7 +65,7 @@ class CreateClipBoardTestCase(BaseAPITestCase):
 
 
 class RetrieveClipBoardTask(BaseAPITestCase):
-    url_name = "v1-clipboard-retrieve"
+    url_name = urls.RETRIEVE
 
     def setUp(self) -> None:
         super().setUp()
@@ -128,7 +129,7 @@ class RetrieveClipBoardTask(BaseAPITestCase):
 
 
 class ListClipBoardTestCase(BaseAPITestCase):
-    url_name = "v1-clipboard-list"
+    url_name = urls.LIST
 
     def setUp(self) -> None:
         super().setUp()
