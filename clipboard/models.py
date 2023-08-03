@@ -9,10 +9,10 @@ class ClipBoard(models.Model):
     FOLDER = "clipboards"
 
     class MediaTypes(models.TextChoices):
-        IMAGE = "image"
-        VIDEO = "video"
-        DOCUMENT = "document"
-        OTHER = "other"
+        IMAGE = "image", "Image"
+        VIDEO = "video", "Video"
+        DOCUMENT = "document", "Document"
+        OTHER = "other", "Other"
 
     name = models.CharField(
         max_length=32,
