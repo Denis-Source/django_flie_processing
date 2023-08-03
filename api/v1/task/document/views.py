@@ -17,6 +17,7 @@ class RetrieveDocumentFormatsView(GenericRetrieveFormatsView):
         responses={
             200: "Dictionary of all available formats and their names"})
     def get(self, request, *args, **kwargs):
+        """Retrieve a list of available input and output formats"""
         return super().get(request, *args, **kwargs)
 
 
@@ -32,6 +33,11 @@ class CreateDocumentConversionTaskView(CreateConversionTaskView):
             400: "Bad request",
             401: "Unauthorized"})
     def post(self, request, *args, **kwargs):
+        """
+        Create document conversion task
+
+        Response does not contain a converted result,
+        but contains task id to retrieve a result if the future"""
         return super().post(request, *args, **kwargs)
 
 
@@ -45,4 +51,9 @@ class RetrieveDocumentConversionTaskView(RetrieveConversionTaskView):
             200: DocumentConversionTaskSerializer,
             401: "Unauthorized"})
     def get(self, request, *args, **kwargs):
+        """
+        Retrieve document conversion task
+
+        Task could not contain a result as it will not necessary will be finished
+        """
         return super().get(request, *args, **kwargs)

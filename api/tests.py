@@ -9,7 +9,7 @@ class BaseAPITestCase(TestCase):
     url_name = None
 
     def setUp(self) -> None:
-        """Creates a user in db with listed the data"""
+        """Create a user in db with listed the data"""
         self.user_password = "SeccureP4assw0rd"
         self.user_name = "Cool_user"
         self.another_user_name = "Cool_user2"
@@ -29,11 +29,11 @@ class BaseAPITestCase(TestCase):
         self.auth_headers = {"Authorization": f"Token {self.get_user_token_value()}"}
 
     def get_url(self, **kwargs):
-        """Gets api endpoint url based on specified class variable"""
+        """Get api endpoint url based on specified class variable"""
         return reverse(self.url_name, kwargs=kwargs)
 
     def logged_user_response(self):
-        """Logins user, gets authorized response which includes a token"""
+        """Login user, get authorized response which includes a token"""
         return self.client.post(
             reverse("v1-login"),
             {
@@ -43,7 +43,7 @@ class BaseAPITestCase(TestCase):
         )
 
     def get_user_token_value(self):
-        """Gets token from a logged response"""
+        """Get token from a logged response"""
         response = self.logged_user_response()
         response_json = response.json()
 

@@ -28,6 +28,7 @@ class TaskClipboardCase(TestCase):
         self.n = 100
 
     def generate_clipboard_sample(self, n):
+        """Generate a sample of clipboards that are varied in user"""
         for i in range(n):
             clipboard = ClipBoard(
                 name="test",
@@ -39,6 +40,7 @@ class TaskClipboardCase(TestCase):
             clipboard.save()
 
     def test_stale_clipboards(self):
+        """Should return a list of task that are considered stale"""
         clipboard = ClipBoard(
             name="test",
             media_type=ClipBoard.MediaTypes.DOCUMENT,
@@ -53,6 +55,7 @@ class TaskClipboardCase(TestCase):
         self.assertIn(clipboard, stale_clipboards)
 
     def test_user_clipboards(self):
+        """Should return a list of task that are created by a specified user"""
         self.generate_clipboard_sample(self.n)
         expected_amount = self.n // 2
         self.assertTrue(self.n % 2 == 0)

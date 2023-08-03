@@ -1,13 +1,8 @@
 from django.contrib import auth
-from django.test import TestCase, Client
-from django.urls import reverse
 from rest_framework import status
-from rest_framework.authtoken.models import Token
 
 from api.tests import BaseAPITestCase
 from api.v1.user_auth.serializers import UserDetailSerializer
-from user.models import User
-
 
 
 class RegisterAPITestCase(BaseAPITestCase):

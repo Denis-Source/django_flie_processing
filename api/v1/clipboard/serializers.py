@@ -25,6 +25,3 @@ class ClipBoardSerializer(ModelSerializer):
 
     def get_file_size(self, obj):
         return obj.file.size
-
-
-

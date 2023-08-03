@@ -37,12 +37,14 @@ class ImageTestCase(TestCase):
         os.remove(self.another_temp_output.name)
 
     def test_convert_paths(self):
+        """Should convert image into a specified format using paths"""
         convert_path(self.temp_input.name, self.temp_output.name)
         width, height = self.size
         result_image = Image.open(self.temp_output.name)
         self.assertTrue(result_image)
 
     def test_convert_paths_wrong_color_mode(self):
+        """Should change image color mode if needed"""
         convert_path(self.temp_input.name, self.another_temp_output.name)
         result_image = Image.open(self.another_temp_output.name)
         self.assertTrue(result_image)
@@ -52,6 +54,7 @@ class ImageTestCase(TestCase):
         self.assertEqual(result_image.mode, COLOR_MODES[self.another_output_suffix])
 
     def test_convert_files(self):
+        """Should convert image into a specified format using django files"""
         output = convert_file(self.temp_input, "md", self.temp_output)
         result_image = Image.open(self.temp_output.name)
         self.assertTrue(result_image)

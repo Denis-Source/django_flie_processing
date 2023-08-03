@@ -1,7 +1,6 @@
 import tempfile
 
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.urls import reverse
 
 from api.tests import BaseAPITestCase
 from task.document.constants import INPUT_FORMATS, OUTPUT_FORMATS

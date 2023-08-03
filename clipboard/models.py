@@ -46,9 +46,11 @@ class ClipBoard(models.Model):
 
     @classmethod
     def get_stale_clipboards(cls):
+        """Get clipboard instances that are considered stale"""
         cutoff_time = timezone.now() - timezone.timedelta(days=settings.CLIPBOARD_MEDIA_AGE)
         return cls.objects.filter(created_at__lte=cutoff_time, auto_delete=True)
 
     @classmethod
     def get_users_clipboard(cls, user: User):
+        """Get clipboard instances that are created by a specified user"""
         return cls.objects.filter(user=user)

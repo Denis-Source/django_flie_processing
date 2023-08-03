@@ -1,4 +1,4 @@
-from django_filters import FilterSet, CharFilter, BaseInFilter, OrderingFilter, Filter
+from django_filters import FilterSet, CharFilter, BaseInFilter, OrderingFilter
 
 
 class CharInFilter(BaseInFilter, CharFilter):

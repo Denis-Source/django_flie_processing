@@ -25,6 +25,7 @@ class ListHistoryTasks(ListAPIView):
     pagination_class = TaskPagination
 
     def get_queryset(self):
+        """Get tasks that are initiated by the requested user"""
         return Task.get_closed_tasks().filter(initiator=self.request.user)
 
     @swagger_auto_schema(
@@ -33,6 +34,7 @@ class ListHistoryTasks(ListAPIView):
             200: "List of closed tasks",
             401: "Unauthorized"})
     def get(self, request, *args, **kwargs):
+        """Return paginated filtered list of tasks, created by the requested user"""
         return super().get(request, *args, **kwargs)
 
 
@@ -74,6 +76,11 @@ class CreateConversionTaskView(CreateAPIView):
     celery_task = None
 
     def perform_create(self, serializer):
+        """
+        Create a task and start celery task
+
+        Return an updated serializer with data (created task)
+        """
         task = self.model_class.objects.create(
             initiator=self.request.user,
             name=serializer.validated_data.get("name"),
@@ -85,7 +92,7 @@ class CreateConversionTaskView(CreateAPIView):
         return self.serializer_class(task)
 
     def post(self, request, *args, **kwargs):
-        """Creates a task that will convert an uploaded document into a specified format"""
+        """Create a task that will convert an uploaded file into a specified format"""
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer = self.perform_create(serializer)
@@ -103,5 +110,5 @@ class RetrieveConversionTaskView(RetrieveAPIView):
         return self.model_class.objects.filter(initiator=self.request.user)
 
     def get(self, request, *args, **kwargs):
-        """Retrieves a detail info of a task with a specified id"""
+        """Retrieve a detail info of a task with a specified id"""
         return super().get(request, *args, **kwargs)

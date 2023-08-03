@@ -1,7 +1,8 @@
 from random import randint
 
 
-def generate_noisy_image(image,  noise_intensity=30):
+def generate_noisy_image(image, noise_intensity=30):
+    """Generate image with some random noise"""
     width, height = image.size
     for y in range(height):
         for x in range(width):
@@ -16,16 +17,18 @@ def generate_noisy_image(image,  noise_intensity=30):
             image.putpixel((x, y), (r, g, b))
     return image
 
+
 def generate_document():
-    content = b"<!DOCTYPE html>" \
-                   b"<html>" \
-                   b"<body>" \
-                   b"<h1>First Heading</h1>" \
-                   b"<p>First paragraph.</p>" \
-                   b"</body>" \
-                   b"</html>"
+    """Generate a tuple of documents (HTML and markdown)"""
+    html = b"<!DOCTYPE html>" \
+           b"<html>" \
+           b"<body>" \
+           b"<h1>First Heading</h1>" \
+           b"<p>First paragraph.</p>" \
+           b"</body>" \
+           b"</html>"
 
-    expected = "# First Heading\n\n" \
-                "First paragraph.\n"
+    markdown = "# First Heading\n\n" \
+               "First paragraph.\n"
 
-    return content, expected
+    return html, markdown

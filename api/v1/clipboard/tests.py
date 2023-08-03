@@ -165,4 +165,3 @@ class ListClipBoardTestCase(BaseAPITestCase):
         results = response.json().get("results")
         self.assertTrue(results)
         self.assertEqual(len(results), ClipBoard.objects.filter(user=self.user).count())
-

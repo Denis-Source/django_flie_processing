@@ -12,7 +12,12 @@ class TaskMessageTypes(str, Enum):
 
 
 class TaskConsumer(AsyncJsonWebsocketConsumer):
+    """
+    Websocket consumer that will send updates regarding task creation or updates
+    """
+
     async def connect(self):
+        """Add connected user to a consumer group, list current (unfinished) tasks"""
         from rest_framework.authtoken.admin import User
         user = self.scope.get("user")
         if type(user) == User:
@@ -28,12 +33,15 @@ class TaskConsumer(AsyncJsonWebsocketConsumer):
                 construct(TaskMessageTypes.OPENED, task_data))
 
     async def opened_task(self, data):
+        """Notify user that task was created"""
         await self.send_json(data)
 
     async def updated_task(self, data):
+        """Notify user that task was updated"""
         await self.send_json(data)
 
     def get_unfinished_tasks(self):
+        """List tasks that are opened"""
         from task.models import Task
         from api.v1.task.serializers import TaskSerializer
 

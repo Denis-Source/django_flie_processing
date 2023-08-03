@@ -31,7 +31,7 @@ INSTALLED_APPS = [
     "task.image",
 
     "clipboard",
-    
+
     # APIs
     "api.v1.user_auth",
 
@@ -79,10 +79,12 @@ TEMPLATES = [
         },
     },
 ]
+
+# Application
 WSGI_APPLICATION = "core.wsgi.application"
 ASGI_APPLICATION = "core.asgi.application"
 
-# Database
+# Databases
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -133,6 +135,7 @@ SWAGGER_SETTINGS = {
     },
 }
 
+# Redis
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 
 # Celery settings
@@ -145,8 +148,10 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": crontab(minute="*/1"),
     },
 }
+
+# Stale age
 STALE_TASK_AGE = 1 * 60  # in seconds
-CLIPBOARD_MEDIA_AGE = 30 # in days
+CLIPBOARD_MEDIA_AGE = 30  # in days
 
 # Channels
 CHANNEL_LAYERS = {

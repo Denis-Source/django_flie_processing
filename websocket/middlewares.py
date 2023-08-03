@@ -6,11 +6,14 @@ from django.db import close_old_connections
 
 
 class TokenAuthMiddleware(BaseMiddleware):
+    """Middleware responsible for token based authentication for channels"""
+
     def __init__(self, app):
         self.app = app
 
     @database_sync_to_async
     def get_user(self, token_value):
+        """Get user with a provided token"""
         from rest_framework.authtoken.models import Token
 
         token = Token.objects.filter(key=token_value).first()
@@ -18,6 +21,7 @@ class TokenAuthMiddleware(BaseMiddleware):
             return token.user
 
     async def __call__(self, scope, receive, send):
+        """If authentication token is provided, add user to scope"""
         await database_sync_to_async(close_old_connections)()
         params = parse_qs(scope.get('query_string').decode())
         params = params.get("token")

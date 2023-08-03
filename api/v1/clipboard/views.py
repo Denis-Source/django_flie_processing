@@ -20,6 +20,13 @@ class CreateClipBoardView(CreateAPIView):
     serializer_class = ClipBoardSerializer
 
     def perform_create(self, serializer):
+        """
+        Create a clipboard based on whether the request is authenticated
+
+        Return a clipboard with user if it is without if it is not
+        Return serializer with updated data (created clipboard)
+        """
+
         if isinstance(self.request.user, User):
             user = self.request.user
         else:
@@ -41,7 +48,7 @@ class CreateClipBoardView(CreateAPIView):
             400: "Bad request",
             401: "Unauthorized"})
     def post(self, request, *args, **kwargs):
-        """Creates a clipboard from the provided data"""
+        """Create a clipboard from the provided data"""
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer = self.perform_create(serializer)
@@ -64,7 +71,7 @@ class RetrieveClipBoardView(RetrieveAPIView):
             200: ClipBoardSerializer,
             401: "Unauthorized"})
     def get(self, request, *args, **kwargs):
-        """Returns a clipboard instance with the specified id"""
+        """Return a clipboard instance with the specified id"""
         return super().get(request, *args, **kwargs)
 
 
@@ -77,6 +84,7 @@ class ListClipBoardView(ListAPIView):
     pagination_class = ClipBoardPagination
 
     def get_queryset(self):
+        """Return a queryset where clipboard user is requested user"""
         return ClipBoard.get_users_clipboard(self.request.user)
 
     @swagger_auto_schema(
@@ -85,5 +93,5 @@ class ListClipBoardView(ListAPIView):
             200: ClipBoardSerializer,
             401: "Unauthorized"})
     def get(self, request, *args, **kwargs):
-        """Retrieves a paginated filtered list of clipboard instances created by the user"""
+        """Retrieve a paginated filtered list of clipboard instances created by the user"""
         return super().get(request, *args, **kwargs)

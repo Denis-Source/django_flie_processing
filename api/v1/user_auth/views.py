@@ -17,14 +17,16 @@ class AuthDetailAPIView(RetrieveAPIView):
     queryset = User.objects.all()
 
     def get_object(self):
+        """Return requested user"""
         return self.request.user
 
     @swagger_auto_schema(
-        tags=["User",],
+        tags=["User", ],
         responses={
             200: UserDetailSerializer,
             401: "Unauthenticated"})
     def get(self, request, *args, **kwargs):
+        """Return user info"""
         return super().get(request, *args, **kwargs)
 
 
@@ -40,13 +42,16 @@ class AuthRegisterAPIView(CreateAPIView):
         self.obj = serializer.save()
 
     @swagger_auto_schema(
-        tags=["User", "Registration",],
+        tags=["User", "Registration", ],
         responses={
             201: "User created successfully",
             400: "Bad data"})
     def post(self, request, *args, **kwargs):
-        """Registers (creates) a new user from the provided fields,
-        generates and provides a new authentication token"""
+        """
+        Register (create) a new user from the provided fields
+
+        Generate and provide a new authentication token
+        """
         response = super().post(request, *args, **kwargs)
         token, _ = Token.objects.get_or_create(user=self.obj)
 
@@ -58,14 +63,13 @@ class AuthLoginAPIView(GenericAPIView):
     serializer_class = UserLoginSerializer
 
     @swagger_auto_schema(
-        tags=["User", "Login",],
+        tags=["User", "Login", ],
         responses={
             200: "User token",
             400: "Bad credentials",
             404: "User not found"})
     def post(self, request):
-        """Provides a user with an authentication token
-        if credentials are correct"""
+        """Provide a user with an authentication token if credentials are correct"""
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
