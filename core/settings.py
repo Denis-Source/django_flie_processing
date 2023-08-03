@@ -23,9 +23,16 @@ INSTALLED_APPS = [
     "channels",
     "django_celery_beat",
 
+    # apps
     "user",
+
     "task",
     "task.document",
+    "task.image",
+
+    "clipboard",
+    
+    # APIs
     "api.v1.user_auth",
     "api.v1.task.document",
     "api.v1.task.image",
