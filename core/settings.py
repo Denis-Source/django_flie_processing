@@ -8,6 +8,8 @@ DEBUG = True
 ALLOWED_HOSTS = []
 AUTH_USER_MODEL = "user.User"
 
+HOST = "http://localhost:8000"
+
 # Apps
 INSTALLED_APPS = [
     "jazzmin",
@@ -22,6 +24,7 @@ INSTALLED_APPS = [
     "drf_yasg",
     "channels",
     "django_celery_beat",
+    "corsheaders",
 
     # apps
     "user",
@@ -46,6 +49,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -114,6 +118,9 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
+# CORS
+CORS_ALLOW_ALL_ORIGINS = True
+
 # Static and media folders
 STATIC_URL = "static_root/"
 STATIC_ROOT = BASE_DIR.joinpath(STATIC_URL)
@@ -150,8 +157,11 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 # Stale age
-STALE_TASK_AGE = 1 * 60  # in seconds
+STALE_TASK_AGE = 1 * 60 * 20  # in seconds
 CLIPBOARD_MEDIA_AGE = 30  # in days
+
+# Upload file size limit
+MAX_FILE_UPLOAD_SIZE = 1024 * 1024 * 100 # 100Megabytes
 
 # Channels
 CHANNEL_LAYERS = {
