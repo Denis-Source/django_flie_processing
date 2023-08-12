@@ -1,9 +1,10 @@
 import os
+from datetime import timedelta
 from pathlib import Path
 
 from celery.schedules import crontab
 
-SECRET_KEY = "django-insecure-o$@x3xk^on2&zq+*g0^$0zih+m2ljnro!3j3k2)$o@4iis+xbd"
+SECRET_KEY = "ro!3j3k2)$o@4iis+xbd"
 DEBUG = True
 ALLOWED_HOSTS = []
 AUTH_USER_MODEL = "user.User"
@@ -19,9 +20,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "rest_framework",
-    "rest_framework.authtoken",
     "drf_yasg",
+    "rest_framework_simplejwt",
     "channels",
     "django_celery_beat",
     "corsheaders",
@@ -60,7 +60,7 @@ MIDDLEWARE = [
 # REST configuration
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.TokenAuthentication"
+        "rest_framework_simplejwt.authentication.JWTAuthentication"
     ]
 }
 
@@ -111,6 +111,11 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+# JWT authentication
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
+}
 
 # Internationalization
 LANGUAGE_CODE = "en-us"

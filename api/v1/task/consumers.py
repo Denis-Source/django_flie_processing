@@ -18,9 +18,9 @@ class TaskConsumer(AsyncJsonWebsocketConsumer):
 
     async def connect(self):
         """Add connected user to a consumer group, list current (unfinished) tasks"""
-        from rest_framework.authtoken.admin import User
+        from django.contrib.auth import get_user_model
         user = self.scope.get("user")
-        if type(user) == User:
+        if type(user) == get_user_model():
             await self.channel_layer.group_add(user.username, self.channel_name)
             await self.accept()
         else:

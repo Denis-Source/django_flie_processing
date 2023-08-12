@@ -1,7 +1,6 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
-from rest_framework.authentication import TokenAuthentication
 from rest_framework.generics import GenericAPIView, CreateAPIView, RetrieveAPIView
 from rest_framework.generics import ListAPIView
 from rest_framework.parsers import MultiPartParser
@@ -18,7 +17,6 @@ from task.models import Task, ConversionTask
 
 class ListHistoryTasks(ListAPIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
     serializer_class = TaskSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TaskFilter
@@ -40,7 +38,6 @@ class ListHistoryTasks(ListAPIView):
 
 class ListOpenedTasks(ListAPIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
     serializer_class = TaskSerializer
 
     def get_queryset(self):
@@ -70,7 +67,6 @@ class GenericRetrieveFormatsView(GenericAPIView):
 
 class CreateConversionTaskView(CreateAPIView):
     permission_classes = [IsAuthenticated, IsNotExceededOpenTasks]
-    authentication_classes = [TokenAuthentication]
     parser_classes = [MultiPartParser]
     model_class = ConversionTask
     celery_task = None
@@ -102,7 +98,6 @@ class CreateConversionTaskView(CreateAPIView):
 
 class RetrieveConversionTaskView(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
     lookup_field = "id"
     model_class = ConversionTask
 

@@ -1,7 +1,6 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
-from rest_framework.authentication import TokenAuthentication
 from rest_framework.generics import CreateAPIView, RetrieveAPIView, ListAPIView
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
@@ -15,7 +14,6 @@ from user.models import User
 
 
 class CreateClipBoardView(CreateAPIView):
-    authentication_classes = [TokenAuthentication]
     parser_classes = [MultiPartParser]
     serializer_class = ClipBoardSerializer
 
@@ -58,7 +56,6 @@ class CreateClipBoardView(CreateAPIView):
 
 class RetrieveClipBoardView(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
     lookup_field = "id"
     serializer_class = ClipBoardSerializer
 
@@ -77,7 +74,6 @@ class RetrieveClipBoardView(RetrieveAPIView):
 
 class ListClipBoardView(ListAPIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
     serializer_class = ClipBoardSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ClipBoardFilter
