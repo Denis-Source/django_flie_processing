@@ -15,7 +15,7 @@ class ClipBoard(models.Model):
         OTHER = "other", "Other"
 
     name = models.CharField(
-        max_length=32,
+        max_length=256,
         verbose_name="Name", help_text="Name of the clipboard"
     )
     media_type = models.CharField(
