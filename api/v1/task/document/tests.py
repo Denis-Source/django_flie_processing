@@ -4,7 +4,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 
 from api.tests import BaseAPITestCase
 from api.v1.task.document import urls
-from task.document.constants import INPUT_FORMATS, OUTPUT_FORMATS
+from core.constants import DOCUMENT_OUTPUT_FORMATS, DOCUMENT_INPUT_FORMATS
 from task.models import Task, DocumentConversionTask
 from utils.generation import generate_document
 
@@ -15,8 +15,8 @@ class RetrieveDocumentFormatsViewTestCase(BaseAPITestCase):
     def setUp(self) -> None:
         super().setUp()
         self.expected = {
-            "input_formats": INPUT_FORMATS,
-            "output_formats": OUTPUT_FORMATS
+            "input_formats": DOCUMENT_INPUT_FORMATS,
+            "output_formats": DOCUMENT_OUTPUT_FORMATS
         }
 
     def test_unauthorized_success(self):

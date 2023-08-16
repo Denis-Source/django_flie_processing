@@ -6,7 +6,7 @@ from django.core.files.base import File
 from pypandoc import convert_file as convert_pandoc_path
 
 from core import settings
-from task.document.constants import OUTPUT_FORMATS
+from core.constants import DOCUMENT_OUTPUT_FORMATS
 from task.models import DocumentConversionTask
 
 
@@ -32,6 +32,6 @@ def convert_file(input_file: File, frmt: str, output_file=None):
         makedirs(output_path.parent, exist_ok=True)
         output_file = File(open(output_path, "wb").close())
 
-    convert_path(os.path.join(settings.MEDIA_ROOT, input_file.name), OUTPUT_FORMATS[frmt], output_file.name)
+    convert_path(os.path.join(settings.MEDIA_ROOT, input_file.name), DOCUMENT_OUTPUT_FORMATS[frmt], output_file.name)
     output_file.name = output_file.name.replace(f"{settings.MEDIA_ROOT}/", "")
     return output_file

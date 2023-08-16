@@ -21,7 +21,6 @@ class CreateClipBoardTestCase(BaseAPITestCase):
             self.get_url(),
             {
                 "name": "test name",
-                "media_type": ClipBoard.MediaTypes.DOCUMENT,
                 "file": self.file,
                 "auto_delete": False,
 
@@ -39,7 +38,6 @@ class CreateClipBoardTestCase(BaseAPITestCase):
             self.get_url(),
             {
                 "name": "test name",
-                "media_type": ClipBoard.MediaTypes.DOCUMENT,
                 "file": self.file,
                 "auto_delete": False,
             },
@@ -57,7 +55,6 @@ class CreateClipBoardTestCase(BaseAPITestCase):
             self.get_url(),
             {
                 "name": "test name",
-                "media_type": ClipBoard.MediaTypes.DOCUMENT,
                 "auto_delete": False,
             },
         )
@@ -140,7 +137,6 @@ class ListClipBoardTestCase(BaseAPITestCase):
         for i in range(n):
             ClipBoard.objects.create(
                 name="test name",
-                media_type=ClipBoard.MediaTypes.DOCUMENT,
                 file=SimpleUploadedFile(
                     "file.txt",
                     b"content"

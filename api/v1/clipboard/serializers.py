@@ -25,7 +25,7 @@ class ClipBoardSerializer(ModelSerializer):
         read_only_fields = (
             "id",
             "created_at",
-            "file_size"
+            "file_size",
         )
         write_only_fields = (
             "file"

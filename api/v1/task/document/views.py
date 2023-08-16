@@ -3,14 +3,14 @@ from drf_yasg.utils import swagger_auto_schema
 from api.v1.task.document.serializers import DocumentConversionTaskSerializer
 from api.v1.task.views import GenericRetrieveFormatsView, CreateConversionTaskView, \
     RetrieveConversionTaskView
-from task.document.constants import INPUT_FORMATS, OUTPUT_FORMATS
+from core.constants import DOCUMENT_OUTPUT_FORMATS, DOCUMENT_INPUT_FORMATS
 from task.document.tasks import convert_document
 from task.models import DocumentConversionTask
 
 
 class RetrieveDocumentFormatsView(GenericRetrieveFormatsView):
-    input_formats = INPUT_FORMATS
-    output_formats = OUTPUT_FORMATS
+    input_formats = DOCUMENT_INPUT_FORMATS
+    output_formats = DOCUMENT_OUTPUT_FORMATS
 
     @swagger_auto_schema(
         tags=["Document"],

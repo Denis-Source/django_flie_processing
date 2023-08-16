@@ -4,15 +4,15 @@ from api.v1.task.image.serializers import ImageConversionTaskSerializer
 from api.v1.task.views import GenericRetrieveFormatsView, CreateConversionTaskView, \
     RetrieveConversionTaskView
 from core import settings
-from task.image.constants import INPUT_FORMATS, OUTPUT_FORMATS
+from core.constants import IMAGE_OUTPUT_FORMATS, IMAGE_INPUT_FORMATS
 from task.image.tasks import convert_image
 from task.models import ImageConversionTask
 
 
 class RetrieveImageFormatsView(GenericRetrieveFormatsView):
     tags = ["Image"]
-    input_formats = INPUT_FORMATS
-    output_formats = OUTPUT_FORMATS
+    input_formats = IMAGE_INPUT_FORMATS
+    output_formats = IMAGE_OUTPUT_FORMATS
 
     @swagger_auto_schema(
         tags=tags,

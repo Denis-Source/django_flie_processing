@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 
 from core import settings
+from core.constants import IMAGE_INPUT_FORMATS, VIDEO_INPUT_FORMATS, DOCUMENT_INPUT_FORMATS
 from user.models import User
 
 
@@ -44,6 +45,11 @@ class ClipBoard(models.Model):
     def __str__(self):
         return f"{self.user} {self.media_type} {self.name}"
 
+    def save(self, *args, **kwargs):
+        if not self.media_type:
+            self.media_type = self.get_media_type(self.file.name)
+        super().save(*args, **kwargs)
+
     @classmethod
     def get_stale_clipboards(cls):
         """Get clipboard instances that are considered stale"""
@@ -54,3 +60,18 @@ class ClipBoard(models.Model):
     def get_users_clipboard(cls, user: User):
         """Get clipboard instances that are created by a specified user"""
         return cls.objects.filter(user=user)
+
+    @staticmethod
+    def get_media_type(file_name: str) -> str:
+        media_types = {
+            ClipBoard.MediaTypes.IMAGE: IMAGE_INPUT_FORMATS,
+            ClipBoard.MediaTypes.VIDEO: VIDEO_INPUT_FORMATS,
+            ClipBoard.MediaTypes.DOCUMENT: DOCUMENT_INPUT_FORMATS,
+        }
+        media_format = file_name.split(".")[-1]
+
+        for media_type, formats in media_types.items():
+            if media_format in formats:
+                return media_type
+
+        return ClipBoard.MediaTypes.OTHER

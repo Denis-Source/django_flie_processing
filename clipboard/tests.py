@@ -32,7 +32,6 @@ class TaskClipboardCase(TestCase):
         for i in range(n):
             clipboard = ClipBoard(
                 name="test",
-                media_type=ClipBoard.MediaTypes.DOCUMENT,
                 file=self.file,
                 auto_delete=i % 2 == 0,
                 user=self.user if i % 2 == 0 else self.other_user
@@ -43,7 +42,6 @@ class TaskClipboardCase(TestCase):
         """Should return a list of task that are considered stale"""
         clipboard = ClipBoard(
             name="test",
-            media_type=ClipBoard.MediaTypes.DOCUMENT,
             file=self.file,
             auto_delete=True,
             user=self.user,
@@ -61,3 +59,23 @@ class TaskClipboardCase(TestCase):
         self.assertTrue(self.n % 2 == 0)
         self.assertEqual(expected_amount, len(ClipBoard.get_users_clipboard(self.user)))
         self.assertEqual(expected_amount, len(ClipBoard.objects.filter(user=self.user)))
+
+    def test_get_media_type_image(self):
+        file_name = "example.png"
+        media_type = ClipBoard.get_media_type(file_name)
+        self.assertEqual(media_type, ClipBoard.MediaTypes.IMAGE)
+
+    def test_get_media_type_video(self):
+        file_name = "example.mp4"
+        media_type = ClipBoard.get_media_type(file_name)
+        self.assertEqual(media_type, ClipBoard.MediaTypes.VIDEO)
+
+    def test_get_media_type_document(self):
+        file_name = "example.docx"
+        media_type = ClipBoard.get_media_type(file_name)
+        self.assertEqual(media_type, ClipBoard.MediaTypes.DOCUMENT)
+
+    def test_get_media_type_unknown(self):
+        file_name = "example.unknown"
+        media_type = ClipBoard.get_media_type(file_name)
+        self.assertIsNone(media_type)
