@@ -12,7 +12,7 @@ class CaseInsensitivePartialMatchCharFilter(CharFilter):
         return super().filter(qs, value)
 
 
-class ClipBoardFilter(FilterSet):
+class UploadFilter(FilterSet):
     media_type = CharInFilter(field_name="media_type", lookup_expr="in")
     name = CaseInsensitivePartialMatchCharFilter(field_name="name")
     ordering = OrderingFilter(

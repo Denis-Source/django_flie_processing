@@ -3,8 +3,7 @@ from urllib.parse import parse_qs
 from channels.db import database_sync_to_async
 from channels.middleware import BaseMiddleware
 from django.db import close_old_connections
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.exceptions import InvalidToken
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.settings import api_settings
 
 
@@ -34,7 +33,7 @@ class TokenAuthMiddleware(BaseMiddleware):
         return await self.app(scope, receive, send)
 
 
-class JWTAuthMiddleware(BaseMiddleware, JWTAuthentication):
+class JWTAuthMiddleware(BaseMiddleware):
     def __init__(self, app, *args, **kwargs):
         self.app = app
         self.user_model = None
@@ -73,3 +72,25 @@ class JWTAuthMiddleware(BaseMiddleware, JWTAuthentication):
             except InvalidToken:
                 scope["user"] = None
         return await self.app(scope, receive, send)
+
+
+    def get_validated_token(self, raw_token: bytes):
+        messages = []
+        for AuthToken in api_settings.AUTH_TOKEN_CLASSES:
+            try:
+                return AuthToken(raw_token)
+            except TokenError as e:
+                messages.append(
+                    {
+                        "token_class": AuthToken.__name__,
+                        "token_type": AuthToken.token_type,
+                        "message": e.args[0],
+                    }
+                )
+
+        raise InvalidToken(
+            {
+                "detail": "Given token not valid for any token type",
+                "messages": messages,
+            }
+        )

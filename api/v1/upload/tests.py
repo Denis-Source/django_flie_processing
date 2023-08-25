@@ -1,8 +1,8 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from api.tests import BaseAPITestCase
-from api.v1.clipboard import urls
-from clipboard.models import ClipBoard
+from api.v1.upload import urls
+from upload.models import Upload
 
 
 class CreateClipBoardTestCase(BaseAPITestCase):
@@ -16,35 +16,32 @@ class CreateClipBoardTestCase(BaseAPITestCase):
         )
 
     def test_unauthorized(self):
-        """Should create a clipboard even if request is not authorized"""
+        """Should create a upload even if request is not authorized"""
         response = self.client.post(
             self.get_url(),
             {
                 "name": "test name",
                 "file": self.file,
-                "auto_delete": False,
-
             }
         )
         data = response.json()
-        clipboard = ClipBoard.objects.get(id=data.get("id"))
+        clipboard = Upload.objects.get(id=data.get("id"))
         self.assertEqual(response.status_code, 201)
         self.assertEqual(clipboard.user, None)
         self.assertTrue(clipboard.file.size)
 
     def test_authorized(self):
-        """Should create a clipboard when user is authorized"""
+        """Should create a upload when user is authorized"""
         response = self.client.post(
             self.get_url(),
             {
                 "name": "test name",
                 "file": self.file,
-                "auto_delete": False,
             },
             headers=self.auth_headers
         )
         data = response.json()
-        clipboard = ClipBoard.objects.get(id=data.get("id"))
+        clipboard = Upload.objects.get(id=data.get("id"))
         self.assertEqual(response.status_code, 201)
         self.assertEqual(clipboard.user, self.user)
         self.assertTrue(clipboard.file.size)
@@ -55,7 +52,6 @@ class CreateClipBoardTestCase(BaseAPITestCase):
             self.get_url(),
             {
                 "name": "test name",
-                "auto_delete": False,
             },
         )
         self.assertEqual(response.status_code, 400)
@@ -66,36 +62,34 @@ class RetrieveClipBoardTask(BaseAPITestCase):
 
     def setUp(self) -> None:
         super().setUp()
-        self.clipboard = ClipBoard.objects.create(
+        self.clipboard = Upload.objects.create(
             name="test name",
-            media_type=ClipBoard.MediaTypes.DOCUMENT,
+            media_type=Upload.MediaTypes.DOCUMENT,
             file=SimpleUploadedFile(
                 "file.txt",
                 b"content"
             ),
-            user=self.user,
-            auto_delete=True
+            user=self.user
         )
-        self.another_clipboard = ClipBoard.objects.create(
+        self.another_clipboard = Upload.objects.create(
             name="another test name",
-            media_type=ClipBoard.MediaTypes.DOCUMENT,
+            media_type=Upload.MediaTypes.DOCUMENT,
             file=SimpleUploadedFile(
                 "another_file.txt",
                 b"another content"
             ),
-            user=self.another_user,
-            auto_delete=True
+            user=self.another_user
         )
 
     def test_authorized(self):
-        """Should return clipboard if request is authorized and valid id is provided"""
+        """Should return upload if request is authorized and valid id is provided"""
         response = self.client.get(
             self.get_url(id=self.clipboard.id),
             headers=self.auth_headers
         )
         data = response.json()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(data["id"], self.clipboard.id)
+        self.assertEqual(data["id"], str(self.clipboard.id))
 
     def test_unauthorized(self):
         """Should return 401 if no credentials are provided"""
@@ -111,7 +105,7 @@ class RetrieveClipBoardTask(BaseAPITestCase):
             self.get_url(id=non_existent_id),
             headers=self.auth_headers
         )
-        self.assertFalse(ClipBoard.objects.filter(id=non_existent_id).exists())
+        self.assertFalse(Upload.objects.filter(id=non_existent_id).exists())
         self.assertEqual(response.status_code, 404)
 
     def test_clipboard_of_another_not_found(self):
@@ -121,7 +115,7 @@ class RetrieveClipBoardTask(BaseAPITestCase):
             headers=self.auth_headers
         )
         self.assertNotEqual(self.user, self.another_clipboard.user)
-        self.assertTrue(ClipBoard.objects.filter(id=self.clipboard.id).exists())
+        self.assertTrue(Upload.objects.filter(id=self.clipboard.id).exists())
         self.assertEqual(response.status_code, 404)
 
 
@@ -135,14 +129,13 @@ class ListClipBoardTestCase(BaseAPITestCase):
 
     def generate_clipboards(self, n):
         for i in range(n):
-            ClipBoard.objects.create(
+            Upload.objects.create(
                 name="test name",
                 file=SimpleUploadedFile(
                     "file.txt",
                     b"content"
                 ),
                 user=self.user if n % 2 == 0 else self.another_user,
-                auto_delete=True
             )
 
     def test_unauthorized(self):
@@ -161,4 +154,4 @@ class ListClipBoardTestCase(BaseAPITestCase):
         self.assertEqual(response.status_code, 200)
         results = response.json().get("results")
         self.assertTrue(results)
-        self.assertEqual(len(results), ClipBoard.objects.filter(user=self.user).count())
+        self.assertEqual(len(results), Upload.objects.filter(user=self.user).count())

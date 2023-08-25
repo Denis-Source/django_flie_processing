@@ -2,28 +2,28 @@ from urllib.parse import urljoin
 
 from rest_framework.serializers import ModelSerializer, SerializerMethodField, ValidationError
 
-from clipboard.models import ClipBoard
+from upload.models import Upload
 from core import settings
 
 
-class ClipBoardSerializer(ModelSerializer):
+class UploadSerializer(ModelSerializer):
     file_size = SerializerMethodField(method_name="get_file_size")
     file_url = SerializerMethodField(method_name="get_file_url")
 
     class Meta:
-        model = ClipBoard
+        model = Upload
         fields = [
             "id",
             "name",
-            "media_type",
             "file",
             "file_url",
             "file_size",
             "created_at",
-            "auto_delete"
+            "media_type",
         ]
         read_only_fields = (
             "id",
+            "media_type",
             "created_at",
             "file_size",
         )

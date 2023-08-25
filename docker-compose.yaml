@@ -10,7 +10,7 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - app:/django_file_processing/
+      - file_processing:/django_file_processing/
     ports:
       - "8000:8000"
     depends_on:
@@ -19,4 +19,4 @@ services:
       - REDIS_HOST=redis
 
 volumes:
-  app:
+  file_processing:

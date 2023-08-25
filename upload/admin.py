@@ -1,9 +1,9 @@
 from django.contrib import admin
 
-from clipboard.models import ClipBoard
+from upload.models import Upload
 
 
-@admin.register(ClipBoard)
+@admin.register(Upload)
 class ClipboardAdmin(admin.ModelAdmin):
     list_display = ("id", "name", "media_type", "created_at", "user")
     list_filter = ("media_type", "user")

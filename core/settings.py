@@ -33,7 +33,7 @@ INSTALLED_APPS = [
     "task.document",
     "task.image",
 
-    "clipboard",
+    "upload",
 
     # APIs
     "api.v1.user_auth",
@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     "api.v1.task.document",
     "api.v1.task.image",
 
-    "api.v1.clipboard",
+    "api.v1.upload",
 ]
 
 # Middleware
@@ -163,7 +163,6 @@ CELERY_BEAT_SCHEDULE = {
 
 # Stale age
 STALE_TASK_AGE = 1 * 60 * 20  # in seconds
-CLIPBOARD_MEDIA_AGE = 30  # in days
 
 # Upload file size limit
 MAX_FILE_UPLOAD_SIZE = 1024 * 1024 * 100 # 100Megabytes
