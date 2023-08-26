@@ -4,6 +4,7 @@ from django.utils import timezone
 from core import settings
 from task.document.constants import OUTPUT_FORMATS_CHOICES as DOCUMENT_OUTPUT_FORMATS_CHOICES
 from task.image.constants import OUTPUT_FORMATS_CHOICES as IMAGE_OUTPUT_FORMATS_CHOICES
+from upload.models import Upload
 from user.models import User
 
 
@@ -68,21 +69,16 @@ class ConversionTask(Task):
     INPUT_FOLDER = "inputs"
     OUTPUT_FOLDER = "outputs"
 
-    input_file = models.FileField(
-        upload_to=INPUT_FOLDER, verbose_name="Input File", help_text="Input File")
+    upload = models.ForeignKey(
+        Upload, on_delete=models.CASCADE,
+        verbose_name="Uploaded file", help_text="Uploaded file that need conversion")
     output_file = models.FileField(
         upload_to=OUTPUT_FOLDER, blank=True, null=True,
         verbose_name="Output File", help_text="Output File")
 
+    output_format = models.CharField(max_length=12, choices=IMAGE_OUTPUT_FORMATS_CHOICES + DOCUMENT_OUTPUT_FORMATS_CHOICES)
+    quality = models.IntegerField(default=100, null=True, blank=True)
+
     def set_output_file(self, file):
         self.output_file.name = file.name
         self.save()
-
-
-class DocumentConversionTask(ConversionTask):
-    output_format = models.CharField(max_length=12, choices=DOCUMENT_OUTPUT_FORMATS_CHOICES)
-
-
-class ImageConversionTask(ConversionTask):
-    output_format = models.CharField(max_length=4, choices=IMAGE_OUTPUT_FORMATS_CHOICES)
-    quality = models.IntegerField(default=100)

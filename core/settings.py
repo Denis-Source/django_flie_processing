@@ -39,9 +39,6 @@ INSTALLED_APPS = [
     "api.v1.user_auth",
 
     "api.v1.task",
-    "api.v1.task.document",
-    "api.v1.task.image",
-
     "api.v1.upload",
 ]
 

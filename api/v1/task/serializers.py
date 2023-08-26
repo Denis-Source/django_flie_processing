@@ -1,6 +1,11 @@
 from rest_framework.serializers import ModelSerializer
 
-from task.models import Task
+from rest_framework.serializers import IntegerField, ValidationError
+from rest_framework.serializers import ModelSerializer
+
+from core.constants import IMAGE_OUTPUT_FORMATS, DOCUMENT_OUTPUT_FORMATS
+from task.models import Task, ConversionTask
+from upload.models import Upload
 
 
 class TaskSerializer(ModelSerializer):
@@ -15,9 +20,50 @@ class TaskSerializer(ModelSerializer):
         ]
 
 
-class TaskCreateSerializer(ModelSerializer):
+class ConversionTaskSerializer(ModelSerializer):
+    quality = IntegerField(
+        default=100,
+        min_value=1,
+        max_value=100,
+        required=False
+    )
+
     class Meta:
-        model = Task
+        model = ConversionTask
         fields = [
-            "name"
+            "id",
+            "name",
+            "status",
+            "created_at",
+            "closed_at",
+            "output_format",
+            "upload",
+            "output_file",
+            "quality",
         ]
+        read_only_fields = (
+            "id",
+            "status",
+            "created_at",
+            "closed_at",
+            "output_file",
+        )
+
+    def validate(self, data):
+        upload = data["upload"]
+        output_format = data["output_format"]
+
+        match data["upload"].media_type:
+            case Upload.MediaTypes.IMAGE:
+                if not output_format in IMAGE_OUTPUT_FORMATS:
+                    raise ValidationError(f"Output format {output_format} is wrong for media type {upload.media_type}")
+            case Upload.MediaTypes.DOCUMENT:
+                if not output_format in DOCUMENT_OUTPUT_FORMATS:
+                    raise ValidationError(f"Output format {output_format} is wrong for media type {upload.media_type}")
+        return data
+
+    def validate_upload(self, upload: Upload):
+        if upload.media_type not in [Upload.MediaTypes.IMAGE, Upload.MediaTypes.DOCUMENT]:
+            raise ValidationError("Provided format is not supported")
+
+        return upload

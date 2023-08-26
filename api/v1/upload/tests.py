@@ -16,7 +16,7 @@ class CreateClipBoardTestCase(BaseAPITestCase):
         )
 
     def test_unauthorized(self):
-        """Should create a upload even if request is not authorized"""
+        """Should create an upload even if request is not authorized"""
         response = self.client.post(
             self.get_url(),
             {

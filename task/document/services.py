@@ -7,7 +7,7 @@ from pypandoc import convert_file as convert_pandoc_path
 
 from core import settings
 from core.constants import DOCUMENT_OUTPUT_FORMATS
-from task.models import DocumentConversionTask
+from task.models import ConversionTask
 
 
 def convert_path(input_path: str, frmt: str, output_path: str):
@@ -26,7 +26,7 @@ def convert_file(input_file: File, frmt: str, output_file=None):
     if not output_file:
         output_path = Path(
             settings.MEDIA_ROOT,
-            DocumentConversionTask.OUTPUT_FOLDER,
+            ConversionTask.OUTPUT_FOLDER,
             f"{input_path.stem}.{frmt}"
         )
         makedirs(output_path.parent, exist_ok=True)

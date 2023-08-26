@@ -10,21 +10,25 @@ from rest_framework.response import Response
 from api.v1.task.filters import TaskFilter
 from api.v1.task.paginations import TaskPagination
 from api.v1.task.permisions import IsNotExceededOpenTasks
-from api.v1.task.serializers import TaskSerializer
+from api.v1.task.serializers import ConversionTaskSerializer
 from core import settings
-from task.models import Task, ConversionTask
+from core.constants import IMAGE_INPUT_FORMATS, IMAGE_OUTPUT_FORMATS, DOCUMENT_INPUT_FORMATS, DOCUMENT_OUTPUT_FORMATS
+from task.document.tasks import convert_document
+from task.image.tasks import convert_image
+from task.models import ConversionTask
+from upload.models import Upload
 
 
-class ListHistoryTasks(ListAPIView):
+class ListHistoryConversionTasks(ListAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = TaskSerializer
+    serializer_class = ConversionTaskSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TaskFilter
     pagination_class = TaskPagination
 
     def get_queryset(self):
         """Get tasks that are initiated by the requested user"""
-        return Task.get_closed_tasks().filter(initiator=self.request.user)
+        return ConversionTask.get_closed_tasks().filter(initiator=self.request.user)
 
     @swagger_auto_schema(
         tags=["Task", ],
@@ -36,12 +40,12 @@ class ListHistoryTasks(ListAPIView):
         return super().get(request, *args, **kwargs)
 
 
-class ListOpenedTasks(ListAPIView):
+class ListOpenedConversionTasks(ListAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = TaskSerializer
+    serializer_class = ConversionTaskSerializer
 
     def get_queryset(self):
-        return Task.get_opened_tasks().filter(initiator=self.request.user)
+        return ConversionTask.get_opened_tasks().filter(initiator=self.request.user)
 
     @swagger_auto_schema(
         tags=["Task", ],
@@ -53,23 +57,36 @@ class ListOpenedTasks(ListAPIView):
         return super().get(request, *args, **kwargs)
 
 
-class GenericRetrieveFormatsView(GenericAPIView):
-    input_formats = []
-    output_formats = []
-
+class RetrieveConversionFormatsView(GenericAPIView):
     def get(self, request):
-        """Provides a dictionary of all available input and output formats"""
+        """Provides a dictionary of all available input and output formats for media types"""
         return Response({
-            "input_formats": self.input_formats,
-            "output_formats": self.output_formats,
+            Upload.MediaTypes.IMAGE: {
+                "input_formats": IMAGE_INPUT_FORMATS,
+                "output_formats": IMAGE_OUTPUT_FORMATS
+            },
+            Upload.MediaTypes.DOCUMENT: {
+                "input_formats": DOCUMENT_INPUT_FORMATS,
+                "output_formats": DOCUMENT_OUTPUT_FORMATS
+            }
         })
 
 
 class CreateConversionTaskView(CreateAPIView):
     permission_classes = [IsAuthenticated, IsNotExceededOpenTasks]
     parser_classes = [MultiPartParser]
-    model_class = ConversionTask
-    celery_task = None
+    serializer_class = ConversionTaskSerializer
+
+    def get_celery_task(self, task: ConversionTask):
+        match task.upload.media_type:
+            case Upload.MediaTypes.IMAGE:
+                return convert_image
+            case Upload.MediaTypes.VIDEO:
+                return None
+            case Upload.MediaTypes.DOCUMENT:
+                return convert_document
+            case Upload.MediaTypes.OTHER:
+                return None
 
     def perform_create(self, serializer):
         """
@@ -77,12 +94,13 @@ class CreateConversionTaskView(CreateAPIView):
 
         Return an updated serializer with data (created task)
         """
-        task = self.model_class.objects.create(
+        task = ConversionTask.objects.create(
             initiator=self.request.user,
             name=serializer.validated_data.get("name"),
-            input_file=serializer.validated_data.get("input_file"),
+            upload=serializer.validated_data.get("upload"),
             output_format=serializer.validated_data.get("output_format"))
-        self.celery_task.apply_async(
+        celery_task = self.get_celery_task(task)
+        celery_task.apply_async(
             soft_time_limit=settings.STALE_TASK_AGE,
             kwargs={"task_id": task.id})
         return self.serializer_class(task)
@@ -100,6 +118,7 @@ class RetrieveConversionTaskView(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     lookup_field = "id"
     model_class = ConversionTask
+    serializer_class = ConversionTaskSerializer
 
     def get_queryset(self):
         return self.model_class.objects.filter(initiator=self.request.user)

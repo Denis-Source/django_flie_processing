@@ -26,7 +26,7 @@ class Upload(models.Model):
         verbose_name="Name", help_text="Name of the upload"
     )
     media_type = models.CharField(
-        max_length=10, default=MediaTypes.OTHER, choices=MediaTypes.choices,
+        max_length=10, default=MediaTypes.OTHER, editable=False, choices=MediaTypes.choices,
         verbose_name="Media type", help_text="Media type of the upload file"
     )
     file = models.FileField(
@@ -47,8 +47,7 @@ class Upload(models.Model):
         return f"{self.user} {self.media_type} {self.name}"
 
     def save(self, *args, **kwargs):
-        if not self.media_type:
-            self.media_type = self.get_media_type(self.file.name)
+        self.media_type = self.get_media_type(self.file.name)
         super().save(*args, **kwargs)
 
     @classmethod
