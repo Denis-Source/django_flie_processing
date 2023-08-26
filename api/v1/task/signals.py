@@ -4,14 +4,14 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from api.v1.task.consumers import TaskMessageTypes
-from api.v1.task.serializers import TaskSerializer
-from task.models import Task
+from api.v1.task.serializers import ConversionTaskSerializer
+from task.models import ConversionTask
 from websocket.general import construct
 
 
-@receiver(post_save, sender=Task)
+@receiver(post_save, sender=ConversionTask)
 def task_post_save_receiver(sender, instance, created, **kwargs):
-    data = TaskSerializer(instance).data
+    data = ConversionTaskSerializer(instance).data
     channel_layer = get_channel_layer()
     if created:
         message_type = TaskMessageTypes.OPENED

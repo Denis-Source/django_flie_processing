@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from api.v1.task.filters import TaskFilter
 from api.v1.task.paginations import TaskPagination
 from api.v1.task.permisions import IsNotExceededOpenTasks
-from api.v1.task.serializers import ConversionTaskSerializer
+from api.v1.task.serializers import ConversionTaskSerializer, CreateConversionTaskSerializer
 from core import settings
 from core.constants import IMAGE_INPUT_FORMATS, IMAGE_OUTPUT_FORMATS, DOCUMENT_INPUT_FORMATS, DOCUMENT_OUTPUT_FORMATS
 from task.document.tasks import convert_document
@@ -28,10 +28,10 @@ class ListHistoryConversionTasks(ListAPIView):
 
     def get_queryset(self):
         """Get tasks that are initiated by the requested user"""
-        return ConversionTask.get_closed_tasks().filter(initiator=self.request.user)
+        return ConversionTask.get_closed_tasks().filter(initiator=self.request.user).order_by("-created_at")
 
     @swagger_auto_schema(
-        tags=["Task", ],
+        tags=["Task"],
         responses={
             200: "List of closed tasks",
             401: "Unauthorized"})
@@ -45,10 +45,10 @@ class ListOpenedConversionTasks(ListAPIView):
     serializer_class = ConversionTaskSerializer
 
     def get_queryset(self):
-        return ConversionTask.get_opened_tasks().filter(initiator=self.request.user)
+        return ConversionTask.get_opened_tasks().filter(initiator=self.request.user).order_by("-created_at")
 
     @swagger_auto_schema(
-        tags=["Task", ],
+        tags=["Task"],
         responses={
             200: "List of opened tasks",
             401: "Unauthorized"})
@@ -58,6 +58,11 @@ class ListOpenedConversionTasks(ListAPIView):
 
 
 class RetrieveConversionFormatsView(GenericAPIView):
+    @swagger_auto_schema(
+        tags=["Task"],
+        responses={
+            200: "List of available formats",
+            401: "Unauthorized"})
     def get(self, request):
         """Provides a dictionary of all available input and output formats for media types"""
         return Response({
@@ -74,8 +79,7 @@ class RetrieveConversionFormatsView(GenericAPIView):
 
 class CreateConversionTaskView(CreateAPIView):
     permission_classes = [IsAuthenticated, IsNotExceededOpenTasks]
-    parser_classes = [MultiPartParser]
-    serializer_class = ConversionTaskSerializer
+    serializer_class = CreateConversionTaskSerializer
 
     def get_celery_task(self, task: ConversionTask):
         match task.upload.media_type:
@@ -98,13 +102,20 @@ class CreateConversionTaskView(CreateAPIView):
             initiator=self.request.user,
             name=serializer.validated_data.get("name"),
             upload=serializer.validated_data.get("upload"),
-            output_format=serializer.validated_data.get("output_format"))
+            output_format=serializer.validated_data.get("output_format"),
+            quality=serializer.validated_data.get("quality")
+        )
         celery_task = self.get_celery_task(task)
         celery_task.apply_async(
             soft_time_limit=settings.STALE_TASK_AGE,
             kwargs={"task_id": task.id})
-        return self.serializer_class(task)
+        return ConversionTaskSerializer(task)
 
+    @swagger_auto_schema(
+        tags=["Task"],
+        responses={
+            201: ConversionTaskSerializer,
+            401: "Unauthorized"})
     def post(self, request, *args, **kwargs):
         """Create a task that will convert an uploaded file into a specified format"""
         serializer = self.get_serializer(data=request.data)
@@ -123,6 +134,11 @@ class RetrieveConversionTaskView(RetrieveAPIView):
     def get_queryset(self):
         return self.model_class.objects.filter(initiator=self.request.user)
 
+    @swagger_auto_schema(
+        tags=["Task"],
+        responses={
+            200: ConversionTaskSerializer,
+            401: "Unauthorized"})   
     def get(self, request, *args, **kwargs):
         """Retrieve a detail info of a task with a specified id"""
         return super().get(request, *args, **kwargs)

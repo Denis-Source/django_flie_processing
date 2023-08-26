@@ -4,6 +4,7 @@ from tempfile import NamedTemporaryFile
 from PIL import Image
 from django.test import TestCase
 
+from core import settings
 from task.image.constants import COLOR_MODES
 from task.image.serivces import convert_path, convert_file
 from utils.generation import generate_noisy_image
@@ -55,6 +56,6 @@ class ImageTestCase(TestCase):
 
     def test_convert_files(self):
         """Should convert image into a specified format using django files"""
-        output = convert_file(self.temp_input, "md", self.temp_output)
-        result_image = Image.open(self.temp_output.name)
+        output = convert_file(self.temp_input, "png")
+        result_image = Image.open(os.path.join(settings.MEDIA_ROOT, output.name))
         self.assertTrue(result_image)
