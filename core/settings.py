@@ -159,7 +159,7 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 # Stale age
-STALE_TASK_AGE = 1 * 60 * 20  # in seconds
+STALE_TASK_AGE = 3 * 60 # in seconds
 
 # Upload file size limit
 MAX_FILE_UPLOAD_SIZE = 1024 * 1024 * 100 # 100Megabytes

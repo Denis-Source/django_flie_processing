@@ -43,13 +43,10 @@ class Task(models.Model):
         return super().save(*args, **kwargs)
 
     def update_status(self, new_status):
-        if new_status in dict(self.Statuses.choices):
-            self.status = new_status
-            if new_status in [self.Statuses.FINISHED, self.Statuses.ERRORED, self.Statuses.CANCELED]:
-                self.closed_at = timezone.now()
-            self.save()
-        else:
-            raise ValueError("Invalid status value")
+        self.status = new_status
+        if new_status in [self.Statuses.FINISHED, self.Statuses.ERRORED, self.Statuses.CANCELED]:
+            self.closed_at = timezone.now()
+        self.save()
 
     @classmethod
     def get_stale_tasks(cls):
@@ -81,4 +78,4 @@ class ConversionTask(Task):
 
     def set_output_file(self, file):
         self.output_file.name = file.name
-        self.save()
+        self.update_status(self.Statuses.FINISHED)

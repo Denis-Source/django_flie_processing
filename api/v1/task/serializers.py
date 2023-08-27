@@ -50,9 +50,9 @@ class ConversionTaskSerializer(ModelSerializer):
             return urljoin(settings.HOST, obj.output_file.url)
 
     def get_output_file_size(self, obj):
-        if obj.output_file:
+        try:
             return obj.output_file.size
-        else:
+        except (FileNotFoundError, ValueError, AttributeError):
             return None
 
     class Meta:
