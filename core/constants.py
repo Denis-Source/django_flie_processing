@@ -69,17 +69,12 @@ DOCUMENT_INPUT_FORMATS = {
     "rtf": "rtf",
     "t2t": "t2t",
     "textile": "textile",
-    "tikiwiki": "tikiwiki",
-    "twiki": "twiki",
-    "vimwiki": "vimwiki"
 }
 
 DOCUMENT_OUTPUT_FORMATS = {
     "bib": "bibtex",
     "md": "markdown_strict",
-    "creole": "creole",
     "csljson": "csljson",
-    "csv": "csv",
     "xml": "docbook",
     "docx": "docx",
     "dokuwiki": "dokuwiki",
@@ -101,11 +96,7 @@ DOCUMENT_OUTPUT_FORMATS = {
     "org": "org",
     "rst": "rst",
     "rtf": "rtf",
-    "t2t": "t2t",
     "textile": "textile",
-    "tikiwiki": "tikiwiki",
-    "twiki": "twiki",
-    "vimwiki": "vimwiki",
     "asciidoc": "asciidoc",
     "asciidoctor": "asciidoctor",
     "beamer": "beamer",

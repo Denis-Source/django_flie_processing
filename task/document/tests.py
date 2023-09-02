@@ -4,6 +4,7 @@ import tempfile
 from django.test import TestCase
 
 from core import settings
+from core.constants import DOCUMENT_OUTPUT_FORMATS, DOCUMENT_INPUT_FORMATS
 from task.document.services import convert_path, convert_file
 
 
@@ -42,7 +43,14 @@ class DocumentTestCase(TestCase):
 
     def test_convert_files(self):
         """Should convert document into a specified format using django files"""
-        output = convert_file(self.temp_input, "md")
-        with open(os.path.join(settings.MEDIA_ROOT, output.name), "r") as f:
-            content = f.read()
-            self.assertEqual(self.expected, content)
+        output = None
+        try:
+            output = convert_file(self.temp_input, "md")
+            with open(os.path.join(settings.MEDIA_ROOT, output.name), "r") as f:
+                content = f.read()
+                self.assertEqual(self.expected, content)
+        except Exception as e:
+            self.fail(e)
+        finally:
+            if output:
+                os.remove(os.path.join(settings.MEDIA_ROOT, output.name))
