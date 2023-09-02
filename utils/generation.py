@@ -6,15 +6,29 @@ def generate_noisy_image(image, noise_intensity=30):
     width, height = image.size
     for y in range(height):
         for x in range(width):
-            r, g, b = image.getpixel((x, y))
-            noise_r = randint(-noise_intensity, noise_intensity)
-            noise_g = randint(-noise_intensity, noise_intensity)
-            noise_b = randint(-noise_intensity, noise_intensity)
+            pixel = image.getpixel((x, y))
+            if isinstance(pixel, tuple):
+                r = pixel[0]
+                g = pixel[1]
+                b = pixel[2]
 
-            r = max(0, min(255, r + noise_r))
-            g = max(0, min(255, g + noise_g))
-            b = max(0, min(255, b + noise_b))
-            image.putpixel((x, y), (r, g, b))
+                noise_r = randint(-noise_intensity, noise_intensity)
+                noise_g = randint(-noise_intensity, noise_intensity)
+                noise_b = randint(-noise_intensity, noise_intensity)
+
+                r = max(0, min(255, r + noise_r))
+                g = max(0, min(255, g + noise_g))
+                b = max(0, min(255, b + noise_b))
+
+                if len(pixel) == 3:
+                    image.putpixel((x, y), (r, g, b))
+                else:
+                    image.putpixel((x, y), (r, g, b, 255))
+            else:
+                noise = randint(-noise_intensity, noise_intensity)
+                v = max(0, min(255, pixel + noise))
+                image.putpixel((x, y), v)
+
     return image
 
 

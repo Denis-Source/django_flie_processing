@@ -4,11 +4,11 @@ INPUT_FORMATS_CHOICES = [(key, value) for key, value in IMAGE_INPUT_FORMATS.item
 OUTPUT_FORMATS_CHOICES = [(key, value) for key, value in IMAGE_OUTPUT_FORMATS.items()]
 
 COLOR_MODES = {
-    "blp": "RGB",
     "bmp": "RGB",
-    "bufr": "RGB",
+    "dcx": "RGBA",
     "dds": "RGBA",
     "dib": "RGBA",
+    "flc": "RGBA",
     "eps": "RGB",
     "ps": "RGB",
     "grib": "RGB",
@@ -50,5 +50,6 @@ COLOR_MODES = {
     "webp": "RGBA",
     "emf": "RGB",
     "wmf": "RGB",
-    "xbm": "L",
+    "xbm": "1",
+    "xpm": "RGBA"
 }

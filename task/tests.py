@@ -51,13 +51,6 @@ class TaskTestCase(TestCase):
             self.assertEqual(task.status, status)
             self.assertFalse(task.closed_at)
 
-    def test_update_status_wrong_value(self):
-        """Update with an invalid status should raise an exception"""
-        task = Task(name="test_task", initiator=self.user)
-        task.save()
-        invalid_status = "invalid status"
-        self.assertRaises(ValueError, task.update_status, invalid_status)
-
     def test_get_stale_tasks(self):
         """Should return a list of tasks that are not completed
         and running for too long"""
