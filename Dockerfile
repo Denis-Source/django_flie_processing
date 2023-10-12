@@ -1,8 +1,15 @@
 FROM python:3.10
 
-# Install Pandoc and Texlive
-RUN apt-get update && apt-get install -y pandoc texlive \
+RUN apt-get update && \
+    apt-get install -y software-properties-common && \
+    rm -rf /var/lib/apt/lists/*
+RUN add-apt-repository "deb http://archive.ubuntu.com/ubuntu bionic main"
+RUN apt update
+
+# Install Pandoc, Texlive and tesseract OCR
+RUN apt-get update && apt-get install -y tesseract-ocr pandoc texlive  \
     && rm -rf /var/lib/apt/lists/*
+
 
 # Copy workdir
 WORKDIR /django_file_processing

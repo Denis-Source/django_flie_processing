@@ -1,3 +1,4 @@
+import os
 import tempfile
 
 from PIL import Image
@@ -222,6 +223,9 @@ class CreateImageConversionTaskTestCase(BaseAPITestCase):
             user=self.user,
             file=self.file
         )
+
+    def tearDown(self) -> None:
+        os.remove(self.file.name)
 
     def test_create_success(self):
         """Should create a task if data and credentials are correct"""
