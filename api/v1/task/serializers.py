@@ -1,8 +1,6 @@
 from urllib.parse import urljoin
 
 from rest_framework.fields import SerializerMethodField
-from rest_framework.serializers import ModelSerializer
-
 from rest_framework.serializers import IntegerField, ValidationError
 from rest_framework.serializers import ModelSerializer
 
@@ -24,6 +22,7 @@ class TaskSerializer(ModelSerializer):
             "closed_at"
         ]
 
+
 class CreateConversionTaskSerializer(ModelSerializer):
     quality = IntegerField(
         default=100,
@@ -31,6 +30,7 @@ class CreateConversionTaskSerializer(ModelSerializer):
         max_value=100,
         required=False
     )
+
     class Meta:
         model = ConversionTask
         fields = [
@@ -39,6 +39,15 @@ class CreateConversionTaskSerializer(ModelSerializer):
             "upload",
             "quality"
         ]
+
+    def validate(self, obj):
+        if not ConversionTask.check_output_format(
+                upload=obj.get("upload"),
+                output_format=obj.get("output_format")
+        ):
+            raise ValidationError("Not allowed output format")
+        return obj
+
 
 class ConversionTaskSerializer(ModelSerializer):
     upload = UploadSerializer()

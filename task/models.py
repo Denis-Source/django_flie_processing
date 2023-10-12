@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 
 from core import settings
+from core.constants import IMAGE_OUTPUT_FORMATS, DOCUMENT_OUTPUT_FORMATS
 from task.document.constants import OUTPUT_FORMATS_CHOICES as DOCUMENT_OUTPUT_FORMATS_CHOICES
 from task.image.constants import OUTPUT_FORMATS_CHOICES as IMAGE_OUTPUT_FORMATS_CHOICES
 from upload.models import Upload
@@ -73,9 +74,20 @@ class ConversionTask(Task):
         upload_to=OUTPUT_FOLDER, blank=True, null=True,
         verbose_name="Output File", help_text="Output File")
 
-    output_format = models.CharField(max_length=12, choices=IMAGE_OUTPUT_FORMATS_CHOICES + DOCUMENT_OUTPUT_FORMATS_CHOICES)
+    output_format = models.CharField(max_length=12,
+                                     choices=IMAGE_OUTPUT_FORMATS_CHOICES + DOCUMENT_OUTPUT_FORMATS_CHOICES)
     quality = models.IntegerField(default=100, null=True, blank=True)
 
     def set_output_file(self, file):
         self.output_file.name = file.name
         self.update_status(self.Statuses.FINISHED)
+
+    @classmethod
+    def check_output_format(cls, upload: Upload, output_format):
+        match upload.media_type:
+            case Upload.MediaTypes.IMAGE:
+                return output_format in IMAGE_OUTPUT_FORMATS
+            case Upload.MediaTypes.DOCUMENT:
+                return output_format in DOCUMENT_OUTPUT_FORMATS
+            case _:
+                return False

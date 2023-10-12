@@ -36,7 +36,11 @@ class DocumentTestCase(TestCase):
 
     def test_convert_paths(self):
         """Should convert document into a specified format using paths"""
-        convert_path(self.temp_input.name, "markdown", self.temp_output.name)
+        convert_path(
+            input_path=self.temp_input.name,
+            from_frmt="html",
+            to_frmt="markdown",
+            output_path=self.temp_output.name)
         with open(self.temp_output.name, "r") as f:
             content = f.read()
             self.assertEqual(self.expected, content)
