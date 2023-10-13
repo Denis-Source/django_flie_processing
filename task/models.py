@@ -64,12 +64,11 @@ class Task(models.Model):
 
 
 class ConversionTask(Task):
-    INPUT_FOLDER = "inputs"
     OUTPUT_FOLDER = "outputs"
 
     upload = models.ForeignKey(
         Upload, on_delete=models.CASCADE,
-        verbose_name="Uploaded file", help_text="Uploaded file that need conversion")
+        verbose_name="Uploaded file", help_text="Uploaded file that needs conversion")
     output_file = models.FileField(
         upload_to=OUTPUT_FOLDER, blank=True, null=True,
         verbose_name="Output File", help_text="Output File")
@@ -91,3 +90,21 @@ class ConversionTask(Task):
                 return output_format in DOCUMENT_OUTPUT_FORMATS
             case _:
                 return False
+
+
+class OCRTask(Task):
+    class Languages(models.TextChoices):
+        ENGLISH = "eng", "English"
+        UKRAINIAN = "ukr", "Ukrainian"
+        RUSSIAN = "rus", "Russian"
+
+    language = models.CharField(max_length=3, choices=Languages.choices)
+    output = models.TextField(blank=True, null=True)
+
+    upload = models.ForeignKey(
+        Upload, on_delete=models.CASCADE,
+        verbose_name="Uploaded file", help_text="Uploaded file that needs OCR")
+
+    @classmethod
+    def get_available_languages(cls):
+        return {value:label for value, label in cls.Languages.choices}

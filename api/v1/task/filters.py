@@ -10,11 +10,8 @@ class CaseInsensitivePartialMatchCharFilter(CharFilter):
             self.lookup_expr = "icontains"
         return super().filter(qs, value)
 
-
 class TaskFilter(FilterSet):
     status = CharInFilter(field_name="status", lookup_expr="in")
-    media_type = CharInFilter(field_name="upload__media_type", lookup_expr="in")
-    name = CaseInsensitivePartialMatchCharFilter(field_name="name")
     ordering = OrderingFilter(
         fields=(
             ("created_at", "created_at"),
@@ -23,3 +20,8 @@ class TaskFilter(FilterSet):
             ("name", "name")
         ),
     )
+    name = CaseInsensitivePartialMatchCharFilter(field_name="name")
+
+class ConversionTaskFilter(TaskFilter):
+    media_type = CharInFilter(field_name="upload__media_type", lookup_expr="in")
+

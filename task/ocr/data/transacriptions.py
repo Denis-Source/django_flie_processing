@@ -17,3 +17,13 @@ UKR_TRANSCRIPTION = "Кожна людина повинна мати всі пр
                     "від отого, чи є ця отериторія незалежною, підопічною,\n" \
                     "несамоврядованою або якнебудь інакше обмеженою у своєму\n" \
                     "суверенітеті.\n\n"
+
+IMAGE_FORMAT = "png"
+
+UKR_TEST_IMAGE = f"task/ocr/data/ukr.{IMAGE_FORMAT}"
+ENG_TEST_IMAGE = f"task/ocr/data/eng.{IMAGE_FORMAT}"
+
+TRANSCRIPTIONS = {
+    UKR_TEST_IMAGE: UKR_TRANSCRIPTION,
+    ENG_TEST_IMAGE: ENG_TRANSCRIPTION
+}

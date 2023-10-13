@@ -7,7 +7,7 @@ from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from api.v1.task.filters import TaskFilter
+from api.v1.task.filters import ConversionTaskFilter
 from api.v1.task.paginations import TaskPagination
 from api.v1.task.permisions import IsNotExceededOpenTasks
 from api.v1.task.serializers import ConversionTaskSerializer, CreateConversionTaskSerializer
@@ -19,11 +19,11 @@ from task.models import ConversionTask
 from upload.models import Upload
 
 
-class ListHistoryConversionTasks(ListAPIView):
+class ListHistoryConversionTasksView(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ConversionTaskSerializer
     filter_backends = (DjangoFilterBackend,)
-    filterset_class = TaskFilter
+    filterset_class = ConversionTaskFilter
     pagination_class = TaskPagination
 
     def get_queryset(self):
@@ -40,7 +40,7 @@ class ListHistoryConversionTasks(ListAPIView):
         return super().get(request, *args, **kwargs)
 
 
-class ListOpenedConversionTasks(ListAPIView):
+class ListOpenedConversionTasksView(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ConversionTaskSerializer
 
