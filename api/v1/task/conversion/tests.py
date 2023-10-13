@@ -193,6 +193,7 @@ class CreateImageConversionTaskTestCase(BaseAPITestCase):
         )
 
     def tearDown(self) -> None:
+        super().tearDown()
         os.remove(self.file.name)
 
     def test_create_success(self):

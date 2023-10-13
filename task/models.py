@@ -108,3 +108,7 @@ class OCRTask(Task):
     @classmethod
     def get_available_languages(cls):
         return {value:label for value, label in cls.Languages.choices}
+
+    def set_output(self, text: str):
+        self.output = text
+        self.update_status(self.Statuses.FINISHED)

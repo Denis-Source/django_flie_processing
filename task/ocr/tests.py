@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from core import settings
-from task.ocr.data.transacriptions import UKR_TRANSCRIPTION, ENG_TEST_IMAGE, UKR_TEST_IMAGE, \
+from task.ocr.data.samples import UKR_TRANSCRIPTION, ENG_TEST_IMAGE, UKR_TEST_IMAGE, \
     TRANSCRIPTIONS
 from task.ocr.services import get_text_from_path
 from upload.models import Upload

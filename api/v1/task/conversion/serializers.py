@@ -28,13 +28,13 @@ class CreateConversionTaskSerializer(ModelSerializer):
             "quality"
         ]
 
-    def validate(self, obj):
+    def validate(self, attrs):
         if not ConversionTask.check_output_format(
-                upload=obj.get("upload"),
-                output_format=obj.get("output_format")
+                upload=attrs.get("upload"),
+                output_format=attrs.get("output_format")
         ):
             raise ValidationError("Not allowed output format")
-        return obj
+        return attrs
 
 
 class ConversionTaskSerializer(ModelSerializer):
@@ -74,18 +74,18 @@ class ConversionTaskSerializer(ModelSerializer):
             "output_file",
         )
 
-    def validate(self, data):
-        upload = data["upload"]
-        output_format = data["output_format"]
+    def validate(self, attrs):
+        upload = attrs.get("upload")
+        output_format = attrs.get("output_format")
 
-        match data["upload"].media_type:
+        match attrs.get("upload").media_type:
             case Upload.MediaTypes.IMAGE:
                 if not output_format in IMAGE_OUTPUT_FORMATS:
                     raise ValidationError(f"Output format {output_format} is wrong for media type {upload.media_type}")
             case Upload.MediaTypes.DOCUMENT:
                 if not output_format in DOCUMENT_OUTPUT_FORMATS:
                     raise ValidationError(f"Output format {output_format} is wrong for {upload.media_type}")
-        return data
+        return attrs
 
     def validate_upload(self, upload: Upload):
         if upload.media_type not in [Upload.MediaTypes.IMAGE, Upload.MediaTypes.DOCUMENT]:

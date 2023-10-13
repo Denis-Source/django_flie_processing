@@ -6,6 +6,7 @@ from django.core.files import File
 from pytesseract import image_to_string
 
 from core import settings
+from upload.models import Upload
 
 
 def get_text_from_path(input_path: str, languages: list[str] = ["eng"]) -> str:
@@ -27,5 +28,5 @@ def get_text_from_file(input_file: File, languages: list[str] = ["eng"]) -> str:
     Get text from django file
     """
     input_path = Path(input_file.name)
-    output = get_text_from_path(os.path.join(settings.MEDIA_ROOT, input_path.name), languages=languages)
+    output = get_text_from_path(os.path.join(settings.MEDIA_ROOT, Upload.FOLDER, input_path.name), languages=languages)
     return output
