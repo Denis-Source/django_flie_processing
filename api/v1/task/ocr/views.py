@@ -12,13 +12,42 @@ from api.v1.task.permisions import IsNotExceededOpenTasks
 from task.models import OCRTask
 
 
-class RetrieveOCRLanguagesView(GenericAPIView):
+class ListHistoryOCRTasksView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = OCRTaskSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = OCRFilter
+    pagination_class = TaskPagination
+
+    def get_queryset(self):
+        """Get ocr tasks that are initiated by the requested user"""
+        return OCRTask.get_closed_tasks().filter(initiator=self.request.user).order_by("-created_at")
+
     @swagger_auto_schema(
-        tags=["Task"],
+        tags=["OCR"],
         responses={
-            200: "List of available languages"})
-    def get(self, request):
-        return Response(OCRTask.get_available_languages())
+            200: "List of closed OCR tasks",
+            401: "Unauthorized"})
+    def get(self, request, *args, **kwargs):
+        """Return paginated filtered list of OCR tasks, created by the requested user"""
+        return super().get(request, *args, **kwargs)
+
+
+class ListOpenedOCRTasksView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = OCRTaskSerializer
+
+    def get_queryset(self):
+        return OCRTask.get_opened_tasks().filter(initiator=self.request.user).order_by("-created_at")
+
+    @swagger_auto_schema(
+        tags=["OCR"],
+        responses={
+            200: "List of opened OCR tasks",
+            401: "Unauthorized"})
+    def get(self, request, *args, **kwargs):
+        """List opened OCR tasks and their maximum acceptable amount"""
+        return super().get(request, *args, **kwargs)
 
 
 class CreateOCRTaskView(CreateAPIView):
@@ -34,7 +63,13 @@ class CreateOCRTaskView(CreateAPIView):
         )
         return OCRTaskSerializer(task)
 
+    @swagger_auto_schema(
+        tags=["OCR"],
+        responses={
+            201: OCRTaskSerializer,
+            401: "Unauthorized, Limit Exceeded"})
     def post(self, request, *args, **kwargs):
+        """Create an OCR task that will recognize text from uploaded image with specified language"""
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer = self.perform_create(serializer)
@@ -51,48 +86,20 @@ class RetrieveOCRTaskView(RetrieveAPIView):
         return OCRTask.objects.filter(initiator=self.request.user)
 
     @swagger_auto_schema(
-        tags=["Task"],
+        tags=["OCR"],
         responses={
             200: OCRTaskSerializer,
             401: "Unauthorized"})
     def get(self, request, *args, **kwargs):
-        """Retrieve a detail info of a task with a specified id"""
+        """Retrieve a detail info of an OCR task with a specified id"""
         return super().get(request, *args, **kwargs)
 
 
-class ListHistoryOCRTasksView(ListAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = OCRTaskSerializer
-    filter_backends = (DjangoFilterBackend,)
-    filterset_class = OCRFilter
-    pagination_class = TaskPagination
-
-    def get_queryset(self):
-        """Get tasks that are initiated by the requested user"""
-        return OCRTask.get_closed_tasks().filter(initiator=self.request.user).order_by("-created_at")
-
+class RetrieveOCRLanguagesView(GenericAPIView):
     @swagger_auto_schema(
-        tags=["Task"],
+        tags=["OCR"],
         responses={
-            200: "List of closed ocr tasks",
-            401: "Unauthorized"})
-    def get(self, request, *args, **kwargs):
-        """Return paginated filtered list of tasks, created by the requested user"""
-        return super().get(request, *args, **kwargs)
-
-
-class ListOpenedOCRTasksView(ListAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = OCRTaskSerializer
-
-    def get_queryset(self):
-        return OCRTask.get_opened_tasks().filter(initiator=self.request.user).order_by("-created_at")
-
-    @swagger_auto_schema(
-        tags=["Task"],
-        responses={
-            200: "List of opened OCR tasks",
-            401: "Unauthorized"})
-    def get(self, request, *args, **kwargs):
-        """List opened tasks and their maximum acceptable amount"""
-        return super().get(request, *args, **kwargs)
+            200: "List of available languages"})
+    def get(self, request):
+        """Provides a dictionary of all available languages for OCR"""
+        return Response(OCRTask.get_available_languages())

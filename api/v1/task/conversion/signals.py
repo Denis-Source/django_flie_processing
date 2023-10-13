@@ -4,7 +4,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from api.v1.task.consumers import TaskMessageTypes
-from api.v1.task.serializers import ConversionTaskSerializer
+from api.v1.task.conversion.serializers import ConversionTaskSerializer
 from task.models import ConversionTask
 from websocket.general import construct
 

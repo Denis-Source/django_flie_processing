@@ -21,7 +21,3 @@ class TaskFilter(FilterSet):
         ),
     )
     name = CaseInsensitivePartialMatchCharFilter(field_name="name")
-
-class ConversionTaskFilter(TaskFilter):
-    media_type = CharInFilter(field_name="upload__media_type", lookup_expr="in")
-
