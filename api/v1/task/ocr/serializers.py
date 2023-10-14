@@ -26,6 +26,7 @@ class OCRTaskSerializer(ModelSerializer):
     class Meta:
         model = OCRTask
         fields = [
+            "id",
             "name",
             "status",
             "created_at",

@@ -6,14 +6,44 @@ from rest_framework import status
 
 from api.tests import BaseAPITestCase
 from api.v1.task.conversion import urls
-from api.v1.task.tests import BaseListTaskTestCase
 from core.constants import IMAGE_INPUT_FORMATS, IMAGE_OUTPUT_FORMATS, DOCUMENT_INPUT_FORMATS, DOCUMENT_OUTPUT_FORMATS
 from task.models import Task, ConversionTask
 from upload.models import Upload
 from utils.generation import generate_document, generate_noisy_image
 
 
-class ListHistoryTestCase(BaseListTaskTestCase):
+class BaseConversionListTaskTestCase(BaseAPITestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.n = 100
+        n_map = {
+            0: Task.Statuses.CREATED,
+            1: Task.Statuses.RUNNING,
+            2: Task.Statuses.ERRORED,
+            3: Task.Statuses.FINISHED,
+            4: Task.Statuses.CREATED,
+        }
+        self.content, _ = generate_document()
+        self.file = SimpleUploadedFile(
+            "file.md",
+            self.content
+        )
+        self.upload = Upload.objects.create(
+            name="test.html",
+            file=self.file,
+            user=self.user
+        )
+        for i in range(self.n):
+            task = ConversionTask(
+                name="test",
+                upload=self.upload,
+                initiator=self.user
+            )
+            task.update_status(n_map[i % len(n_map)])
+            task.save()
+
+
+class ListConversionHistoryTestCase(BaseConversionListTaskTestCase):
     url_name = urls.HISTORY
 
     def test_history_success(self):
@@ -25,7 +55,6 @@ class ListHistoryTestCase(BaseListTaskTestCase):
             },
             headers=self.auth_headers
         )
-        a = Task.get_opened_tasks()
         self.assertTrue(len(Task.get_closed_tasks().filter(initiator=self.user)))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["count"], Task.get_closed_tasks().filter(initiator=self.user).count())
@@ -38,7 +67,28 @@ class ListHistoryTestCase(BaseListTaskTestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
-class RetrieveDocumentFormatsViewTestCase(BaseAPITestCase):
+class ListOpenedConversionTestCase(BaseConversionListTaskTestCase):
+    url_name = urls.OPENED
+
+    def test_opened_success(self):
+        """Should retrieve a list of opened tasks"""
+        response = self.client.get(
+            self.get_url(),
+            headers=self.auth_headers
+        )
+        self.assertTrue(len(Task.get_closed_tasks().filter(initiator=self.user)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), Task.get_opened_tasks().filter(initiator=self.user).count())
+
+    def test_opened_unauthorized(self):
+        """Should return unauthorized if token is not provided"""
+        response = self.client.get(
+            self.get_url(),
+        )
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class RetrieveConversionFormatsViewTestCase(BaseAPITestCase):
     url_name = urls.FORMATS
 
     def setUp(self) -> None:
@@ -69,27 +119,6 @@ class RetrieveDocumentFormatsViewTestCase(BaseAPITestCase):
             headers=self.auth_headers
         )
         self.assertEqual(self.expected, response.json())
-
-
-class ListOpenedTestCase(BaseListTaskTestCase):
-    url_name = urls.OPENED
-
-    def test_opened_success(self):
-        """Should retrieve a list of opened tasks"""
-        response = self.client.get(
-            self.get_url(),
-            headers=self.auth_headers
-        )
-        self.assertTrue(len(Task.get_closed_tasks().filter(initiator=self.user)))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), Task.get_opened_tasks().filter(initiator=self.user).count())
-
-    def test_opened_unauthorized(self):
-        """Should return unauthorized if token is not provided"""
-        response = self.client.get(
-            self.get_url(),
-        )
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
 class BaseDocumentConversionTaskTestCase(BaseAPITestCase):
