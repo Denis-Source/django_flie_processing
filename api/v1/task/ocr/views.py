@@ -11,7 +11,7 @@ from api.v1.task.paginations import TaskPagination
 from api.v1.task.permisions import IsNotExceededOpenTasks
 from core import settings
 from task.models import OCRTask
-from task.ocr.tasks import get_text
+from task.ocr.tasks import get_text, get_text_sync
 
 
 class ListHistoryOCRTasksView(ListAPIView):
@@ -63,9 +63,7 @@ class CreateOCRTaskView(CreateAPIView):
             language=serializer.validated_data.get("language"),
             upload=serializer.validated_data.get("upload")
         )
-        get_text.apply_async(
-            soft_time_limit=settings.STALE_TASK_AGE,
-            kwargs={"task_id": task.id})
+        task = get_text_sync(task)
         return OCRTaskSerializer(task)
 
     @swagger_auto_schema(

@@ -1,3 +1,5 @@
+import base64
+
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from api.tests import BaseAPITestCase
@@ -5,7 +7,66 @@ from api.v1.upload import urls
 from upload.models import Upload
 
 
-class CreateClipBoardTestCase(BaseAPITestCase):
+class Create64ClipBoardTestCase(BaseAPITestCase):
+    url_name = urls.CREATE_64
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.content = b"content"
+
+    def test_unauthorized_success(self):
+        """Should create an upload even if request is not authorized"""
+        base64_content = f"data:text/plain;base64,{base64.b64encode(self.content).decode()}"
+
+        response = self.client.post(
+            self.get_url(),
+            {
+                "name": "test_name.txt",
+                "content": base64_content,
+            }
+        )
+        data = response.json()
+        upload = Upload.objects.get(id=data.get("id"))
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(upload.user, None)
+        self.assertTrue(upload.file.size)
+        self.assertEqual(upload.file.read(), self.content)
+
+    def test_authorized_success(self):
+        """Should create an upload when user is authorized"""
+        base64_content = f"data:text/plain;base64,{base64.b64encode(self.content).decode()}"
+
+        response = self.client.post(
+            self.get_url(),
+            {
+                "name": "test_name.txt",
+                "content": base64_content,
+            },
+            headers=self.auth_headers
+        )
+        data = response.json()
+        upload = Upload.objects.get(id=data.get("id"))
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(upload.user, self.user)
+        self.assertTrue(upload.file.size)
+        self.assertEqual(upload.file.read(), self.content)
+
+    def test_bad_data(self):
+        """Should return bad response if bad data is provided"""
+        base64_content = f"bad data"
+
+        response = self.client.post(
+            self.get_url(),
+            {
+                "name": "test_name.txt",
+                "content": base64_content,
+            }
+        )
+        self.assertEqual(response.status_code, 400)
+
+class CreateUploadTestCase(BaseAPITestCase):
     url_name = urls.CREATE
 
     def setUp(self) -> None:
@@ -15,7 +76,7 @@ class CreateClipBoardTestCase(BaseAPITestCase):
             b"content"
         )
 
-    def test_unauthorized(self):
+    def test_unauthorized_success(self):
         """Should create an upload even if request is not authorized"""
         response = self.client.post(
             self.get_url(),
@@ -25,13 +86,13 @@ class CreateClipBoardTestCase(BaseAPITestCase):
             }
         )
         data = response.json()
-        clipboard = Upload.objects.get(id=data.get("id"))
+        upload = Upload.objects.get(id=data.get("id"))
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(clipboard.user, None)
-        self.assertTrue(clipboard.file.size)
+        self.assertEqual(upload.user, None)
+        self.assertTrue(upload.file.size)
 
-    def test_authorized(self):
-        """Should create a upload when user is authorized"""
+    def test_authorized_success(self):
+        """Should create an upload when user is authorized"""
         response = self.client.post(
             self.get_url(),
             {
@@ -41,10 +102,10 @@ class CreateClipBoardTestCase(BaseAPITestCase):
             headers=self.auth_headers
         )
         data = response.json()
-        clipboard = Upload.objects.get(id=data.get("id"))
+        upload = Upload.objects.get(id=data.get("id"))
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(clipboard.user, self.user)
-        self.assertTrue(clipboard.file.size)
+        self.assertEqual(upload.user, self.user)
+        self.assertTrue(upload.file.size)
 
     def test_no_file(self):
         """Should return 400 if no file provided"""
@@ -57,12 +118,12 @@ class CreateClipBoardTestCase(BaseAPITestCase):
         self.assertEqual(response.status_code, 400)
 
 
-class RetrieveClipBoardTask(BaseAPITestCase):
+class RetrieveUpload(BaseAPITestCase):
     url_name = urls.RETRIEVE
 
     def setUp(self) -> None:
         super().setUp()
-        self.clipboard = Upload.objects.create(
+        self.upload = Upload.objects.create(
             name="test name",
             media_type=Upload.MediaTypes.DOCUMENT,
             file=SimpleUploadedFile(
@@ -84,17 +145,17 @@ class RetrieveClipBoardTask(BaseAPITestCase):
     def test_authorized(self):
         """Should return upload if request is authorized and valid id is provided"""
         response = self.client.get(
-            self.get_url(id=self.clipboard.id),
+            self.get_url(id=self.upload.id),
             headers=self.auth_headers
         )
         data = response.json()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(data["id"], str(self.clipboard.id))
+        self.assertEqual(data["id"], str(self.upload.id))
 
     def test_unauthorized(self):
         """Should return 401 if no credentials are provided"""
         response = self.client.get(
-            self.get_url(id=self.clipboard.id),
+            self.get_url(id=self.upload.id),
         )
         self.assertEqual(response.status_code, 401)
 
@@ -115,19 +176,19 @@ class RetrieveClipBoardTask(BaseAPITestCase):
             headers=self.auth_headers
         )
         self.assertNotEqual(self.user, self.another_clipboard.user)
-        self.assertTrue(Upload.objects.filter(id=self.clipboard.id).exists())
+        self.assertTrue(Upload.objects.filter(id=self.upload.id).exists())
         self.assertEqual(response.status_code, 404)
 
 
-class ListClipBoardTestCase(BaseAPITestCase):
+class ListUploadCase(BaseAPITestCase):
     url_name = urls.LIST
 
     def setUp(self) -> None:
         super().setUp()
         self.n = 10
-        self.generate_clipboards(self.n)
+        self.generate_uploads(self.n)
 
-    def generate_clipboards(self, n):
+    def generate_uploads(self, n):
         for i in range(n):
             Upload.objects.create(
                 name="test name",

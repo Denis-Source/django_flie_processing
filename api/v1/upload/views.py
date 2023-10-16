@@ -1,3 +1,6 @@
+import base64
+
+from django.core.files.base import ContentFile
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
@@ -8,9 +11,44 @@ from rest_framework.response import Response
 
 from api.v1.upload.filters import UploadFilter
 from api.v1.upload.paginations import UploadPagination
-from api.v1.upload.serializers import UploadSerializer
+from api.v1.upload.serializers import UploadSerializer, Create64UploadSerializer
 from upload.models import Upload
 from user.models import User
+
+
+class Create64UploadView(CreateAPIView):
+    serializer_class = Create64UploadSerializer
+
+    def perform_create(self, serializer):
+        if isinstance(self.request.user, User):
+            user = self.request.user
+        else:
+            user = None
+        base64_content = serializer.validated_data.get("content")
+        data, base64_data = base64_content.split(',', 1)
+        file_data = base64.b64decode(base64_data)
+
+        upload = Upload.objects.create(
+            name=serializer.validated_data.get("name"),
+            media_type=serializer.validated_data.get("media_type"),
+            file=ContentFile(file_data, name=serializer.validated_data.get("name")),
+            user=user,
+        )
+        return UploadSerializer(upload)
+
+    @swagger_auto_schema(
+        tags=["Upload"],
+        responses={
+            201: UploadSerializer,
+            400: "Bad request",
+            401: "Unauthorized"})
+    def post(self, request, *args, **kwargs):
+        """Create an upload from the base64 provided data"""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer = self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class CreateUploadView(CreateAPIView):
@@ -19,9 +57,9 @@ class CreateUploadView(CreateAPIView):
 
     def perform_create(self, serializer):
         """
-        Create a upload based on whether the request is authenticated
+        Create an upload based on whether the request is authenticated
 
-        Return a upload with user if it is without if it is not
+        Return an upload with user if it is without if it is not
         Return serializer with updated data (created upload)
         """
 

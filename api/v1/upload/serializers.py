@@ -1,9 +1,29 @@
+import re
 from urllib.parse import urljoin
 
-from rest_framework.serializers import ModelSerializer, SerializerMethodField, ValidationError
+from rest_framework.serializers import ModelSerializer, SerializerMethodField, ValidationError, CharField
 
-from upload.models import Upload
 from core import settings
+from upload.models import Upload
+
+
+class Create64UploadSerializer(ModelSerializer):
+    BASE64_REGEX = re.compile('^data:[^;]+;base64[^"]+$')
+
+    content = CharField()
+
+    class Meta:
+        model = Upload
+        fields = [
+            "name",
+            "content",
+        ]
+
+    def validate_content(self, value):
+        if not self.BASE64_REGEX.match(value):
+            raise ValidationError("Not image base64 data")
+
+        return value
 
 
 class UploadSerializer(ModelSerializer):
